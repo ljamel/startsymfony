@@ -1,0 +1,35 @@
+# app/config/security.yml
+
+security:
+  encoders:
+    OC\UserBundle\Entity\User: sha512
+
+  role_hierarchy:
+    # Un admin hérite des droits d'auteur et de modérateur
+    ROLE_ADMIN:       [ROLE_AUTEUR, ROLE_MODERATEUR]
+    # On garde ce rôle superadmin, il nous resservira par la suite
+    ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+  providers:
+    main:
+      id: fos_user.user_provider.username
+
+  firewalls:
+    dev:
+      pattern: ^/(_(profiler|wdt)|css|images|js)/
+      security: false
+    main:
+      pattern:      ^/
+      anonymous:    true
+      provider:     main
+      form_login:
+        login_path: fos_user_security_login
+        check_path: fos_user_security_check
+      logout:
+        path:       fos_user_security_logout
+        target:     /platform
+      remember_me:
+        secret:     %secret% # %secret% est un paramètre de parameter
+
+  access_control:
+    - { path: ^/admin, roles: ROLE_ADMIN }
