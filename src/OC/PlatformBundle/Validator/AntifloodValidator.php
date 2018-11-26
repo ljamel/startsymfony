@@ -39,7 +39,7 @@ class AntifloodValidator extends ConstraintValidator
     // On vérifie si cette IP a déjà posté une candidature il y a moins de 15 secondes
     $isFlood = $this->em
       ->getRepository('OCPlatformBundle:Application')
-      ->isFlood($ip, 15)
+      ->isFlood($ip, 180)
     ;
 
     if ($isFlood) {

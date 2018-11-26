@@ -1,17 +1,19 @@
 # src/OC/PlatformBundle/Resources/config/routing.yml
 
 oc_platform_home:
-    path:      /{page}
+    path:      /
     defaults:
         _controller: OCPlatformBundle:Advert:index
-        page:        1
-    requirements:
-        page: \d*
 
 oc_platform_admin:
     path:      /admin/
     defaults:
         _controller: OCPlatformBundle:Advert:admin
+
+oc_platform_searchinguser:
+    path:      /searchinguser/
+    defaults:
+        _controller: OCPlatformBundle:Advert:searchinguser
 
 oc_platform_deleteuser:
     path:      /deleteuser/{user}

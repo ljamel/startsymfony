@@ -10,10 +10,12 @@ class RegistrationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
+		
     }
 
     public function getParent()
-    {
+    {		
         return 'FOS\UserBundle\Form\Type\RegistrationFormType';
     }
 

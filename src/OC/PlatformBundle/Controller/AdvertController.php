@@ -8,7 +8,6 @@ use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-// N'oubliez pas ce use pour l'annotation
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -16,29 +15,20 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class AdvertController extends Controller
 {
-  public function indexAction($page)
+  public function indexAction()
   {
-    if ($page < 1) {
-      throw new NotFoundHttpException('Page "'.$page.'" inexistante.');
-    }
+	    
 	  
-	  
-	  
-	  
-	// Pour récupérer le service UserManager du bundle
+	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE
 	$userManager = $this->get('fos_user.user_manager');
-	  
-	// Pour récupérer la liste de tous les utilisateurs
-    $users = $userManager->findUsers();
-	  
-	  
-	  
-	  
-	  
-	  
+	  if(empty($_POST['find'])){
+	  	echo $_POST['find'] = "lamrdfgdei";
+	  }
+    echo $users = $userManager->findUserBy(array('username' => htmlspecialchars($_POST['find'])));
 
     // Ici je fixe le nombre d'annonces par page à 3
     // Mais bien sûr il faudrait utiliser un paramètre, et y accéder via $this->container->getParameter('nb_per_page')
+    $page = 1;
     $nbPerPage = 3;
 
     // On récupère notre objet Paginator
@@ -109,6 +99,26 @@ class AdvertController extends Controller
 	$userManager->deleteUser($userr);
 	  
 	return $this->redirectToRoute('oc_platform_admin', array());
+  }  
+  
+  public function searchinguserAction() {
+	  
+	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE LA RECHERCHE
+	$userManager = $this->get('fos_user.user_manager');
+	  if(empty($_POST['find'])){
+	  	$_POST['find'] = "lamri";
+	  }
+	  
+      $user = $userManager->findUserBy(array('username' => htmlspecialchars($_POST['find'])));
+	  
+	  if(empty($user)){
+	  	return $this->redirectToRoute('oc_platform_home', array());
+	  }
+	  
+	  
+	return $this->render('OCPlatformBundle:Advert:searchinguser.html.twig', array(
+      'user'        => $user,
+    ));
   }
 
   public function viewAction($id)

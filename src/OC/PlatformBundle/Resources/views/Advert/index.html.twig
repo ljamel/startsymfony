@@ -10,17 +10,12 @@
 
   <h2>Liste des annoncesiouutgyuifuitftyd</h2>
 
-/* affiche 1 si c'est du spam sinon rien */
+<!-- affiche 1 si c'est du spam sinon rien -->
 {{ checkIfSpam('leListe des annoncesiouutgyuifuitftydListe d') }}
 
+ <!-- affiche resultat par utilisateur -->
+ {{ users }}
 
-// si dessous a integrer dans une nouvelle page pour la gestions des utilisateurs exemple page admin
-{% for user in users %}
-
- {{ user.email }}
- {{ user.username }}
-
-{% endfor %}
 
   <ul>
     {% for advert in listAdverts %}
@@ -31,6 +26,7 @@
         par {{ advert.author }},
         le {{ advert.date|date('d/m/Y') }}
       </li>
+	  <p>{{ advert.content | truncate(150) }}</p>
     {% else %}
       <li>Pas (encore !) d'annonces</li>
     {% endfor %}

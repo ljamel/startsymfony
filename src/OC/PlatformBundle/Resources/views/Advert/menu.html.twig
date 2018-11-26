@@ -10,5 +10,8 @@
       </a>
     </li>
   {% endfor %}
-
+ <form action="{{ path('oc_platform_home') }}searchinguser/" method="post">
+  <input type="text" name="find"><br>
+  <input type="submit" value="Chercher un utilisateur">
+</form> 
 </ul>

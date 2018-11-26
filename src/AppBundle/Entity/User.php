@@ -25,7 +25,7 @@ class User extends BaseUser
      *     max=255,
      *     minMessage="The name is too short.",
      *     maxMessage="The name is too long.",
-     *     groups={"Registration", "Profile"}
+     *     groups={"Registration", "Profile", unique=true}
      * )
      */
     protected $name;

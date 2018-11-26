@@ -58,7 +58,7 @@ class Advert
   /**
    * @var string
    *
-   * @ORM\Column(name="content", type="string", length=255)
+   * @ORM\Column(name="content", type="string")
    * @Assert\NotBlank()
    * @Antiflood()
    */
@@ -132,7 +132,7 @@ class Advert
    */
   public function isContentValid(ExecutionContextInterface $context)
   {
-    $forbiddenWords = array('démotivation', 'abandon');
+    $forbiddenWords = array('porno', 'viagra');
 
     // On vérifie que le contenu ne contient pas l'un des mots
     if (preg_match('#'.implode('|', $forbiddenWords).'#', $this->getContent())) {
