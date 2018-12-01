@@ -1,14 +1,22 @@
 # src/OC/PlatformBundle/Resources/config/routing.yml
 
 oc_platform_home:
-    path:      /
+    path:      /index/{page}
     defaults:
         _controller: OCPlatformBundle:Advert:index
+        page:        1
+    requirements:
+        id: \d+
 
 oc_platform_admin:
     path:      /admin/
     defaults:
         _controller: OCPlatformBundle:Advert:admin
+
+oc_platform_user:
+    path:      /user/{user}
+    defaults:
+        _controller: OCPlatformBundle:Advert:user
 
 oc_platform_searchinguser:
     path:      /searchinguser/
@@ -22,11 +30,14 @@ oc_platform_deleteuser:
         user:        1888888888888888888888888888
 
 oc_platform_view:
-    path:      /advert/{id}
+    path:      /advert/{slug}
     defaults:
         _controller: OCPlatformBundle:Advert:view
-    requirements:
-        id: \d+
+
+oc_platform_cat:
+    path:      /category/{name}
+    defaults:
+        _controller: OCPlatformBundle:Advert:category
 
 oc_platform_add:
     path:      /add
@@ -37,6 +48,25 @@ oc_platform_edit:
     path:      /edit/{id}
     defaults:
         _controller: OCPlatformBundle:Advert:edit
+    requirements:
+        id: \d+
+
+oc_platform_edituser:
+    path:      /edituser/{id}
+    defaults:
+        _controller: AppBundle:User:edituser
+    requirements:
+        id: \d+
+
+oc_platform_edituseractive:
+    path:      /edituseractive/
+    defaults:
+        _controller: AppBundle:User:edituseractive
+
+oc_platform_edituseradmin:
+    path:      /edituseradmin/{id}
+    defaults:
+        _controller: AppBundle:User:edituseradmin
     requirements:
         id: \d+
 

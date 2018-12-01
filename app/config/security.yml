@@ -27,9 +27,10 @@ security:
         check_path: fos_user_security_check
       logout:
         path:       fos_user_security_logout
-        target:     /platform
+        target:     /
       remember_me:
         secret:     %secret% # %secret% est un paramètre de parameter
 
   access_control:
     - { path: ^/admin, roles: ROLE_ADMIN }
+    - { path: ^/user, roles: ROLE_AUTEUR }

@@ -34,10 +34,10 @@
                 </thead>
                 {% for article in listAdverts %}
                 <tr>
-                    <td><a class="articleTitle" href="{{ path('oc_platform_admin', { 'id': article.id }) }}">{{ article.title }}</a></td>
+                    <td><a class="articleTitle" href="{{ path('oc_platform_admin', { 'slug': article.slug }) }}">{{ article.title }}</a></td>
                     <td>{{ article.content | truncate(50) }}</td>
                     <td>
-                        <a href="{{ path('oc_platform_edit', { 'id': article.id }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+                        <a href="{{ path('oc_platform_edit', { 'slug': article.slug }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
                         <button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#articleDialog{{ article.id }}"><span class="glyphicon glyphicon-remove"></span>
                         </button>
                         <div class="modal fade" id="articleDialog{{ article.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -52,7 +52,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                        <a href="{{ path('oc_platform_delete', { 'id': article.id }) }}" class="btn btn-danger">Confirm</a>
+                                        <a href="{{ path('oc_platform_delete', { 'slug': article.slug }) }}" class="btn btn-danger">Confirm</a>
                                     </div>
                                 </div><!-- /.modal-content -->
                             </div><!-- /.modal-dialog -->

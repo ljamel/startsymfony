@@ -5,6 +5,7 @@
 namespace OC\PlatformBundle\Controller;
 
 use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Entity\Category;
 use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -13,22 +14,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+
+
+
 class AdvertController extends Controller
 {
-  public function indexAction()
+  public function indexAction($page)
   {
-	    
-	  
-	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE
-	$userManager = $this->get('fos_user.user_manager');
-	  if(empty($_POST['find'])){
-	  	echo $_POST['find'] = "lamrdfgdei";
-	  }
-    echo $users = $userManager->findUserBy(array('username' => htmlspecialchars($_POST['find'])));
-
-    // Ici je fixe le nombre d'annonces par page à 3
-    // Mais bien sûr il faudrait utiliser un paramètre, et y accéder via $this->container->getParameter('nb_per_page')
-    $page = 1;
     $nbPerPage = 3;
 
     // On récupère notre objet Paginator
@@ -46,15 +38,60 @@ class AdvertController extends Controller
       throw $this->createNotFoundException("La page ".$page." n'existe pas.");
     }
 
+	// Récupération des AdvertSkill de l'annonce
+    $listAdvertSkills = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Category')
+      ->findAll()
+    ;
+
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
       'listAdverts' => $listAdverts,
+      'listAdvertSkills' => $listAdvertSkills,
       'nbPages'     => $nbPages,
       'page'        => $page,
-      'users'        => $users,
     ));
   }
 	
+  public function categoryAction($name)
+  {
+	  
+	$adverts = $this
+	  ->getDoctrine()
+	  ->getManager()
+	  ->getRepository('OCPlatformBundle:Advert')
+	;
+
+	// yyeeesss ça fonctionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnneeeeeee
+	$graphisme = array('cat' => $name);
+	  
+	$adverts = $adverts->getAdvertWithCategories($graphisme);
+	  
+	// Récupération des AdvertSkill de l'annonce
+    $listAdvertSkills = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Category')
+      ->findAll()
+    ;
+
+    return $this->render('OCPlatformBundle:Advert:categories.html.twig', array(
+      'adverts'           => $adverts,
+      'listAdvertSkills'           => $listAdvertSkills,
+    ));
+  }
+	
+  public function translationAction($name)
+  {
+	// On récupère le service translator
+	$translator = $this->get('translator');
+
+	// Pour traduire dans la locale de l'utilisateur :
+	$texteTraduit = $translator->trans('Mon message à inscrire dans les logs');
+    return $this->render('OCPlatformBundle:Advert:translation.html.twig', array(
+      'name' => $name
+    ));
+  }	
 
   public function adminAction()
   {
@@ -89,6 +126,39 @@ class AdvertController extends Controller
     ));
   }
 	
+  public function userAction($user){
+  		// Pour récupérer le service UserManager du bundle
+	$userManager = $this->get('fos_user.user_manager');
+	  
+	// Pour récupérer la liste de tous les utilisateurs
+    $user = $userManager->findUserBy(array('username' => $user));
+
+    $nbPerPage = 3;
+    $page = 1;
+
+    $listAdverts = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Advert')
+      ->getAdverts(1, $nbPerPage)
+    ;
+
+    // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
+    $nbPages = ceil(count($listAdverts) / $nbPerPage);
+
+
+
+    // On donne toutes les informations nécessaires à la vue
+    return $this->render('OCPlatformBundle:Advert:user.html.twig', array(
+      'listAdverts' => $listAdverts,
+      'nbPages'     => $nbPages,
+      'page'        => $page,
+      'user'        => $user,
+    ));
+  }
+
+   /**
+   * @Security("has_role('ROLE_ADMIN')")
+   */
   public function deleteuserAction($user) {
 	  
     // Pour récupérer le service UserManager du bundle
@@ -101,7 +171,7 @@ class AdvertController extends Controller
 	return $this->redirectToRoute('oc_platform_admin', array());
   }  
   
-  public function searchinguserAction() {
+  public function searchinguserAction(Request $request) {
 	  
 	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE LA RECHERCHE
 	$userManager = $this->get('fos_user.user_manager');
@@ -109,30 +179,28 @@ class AdvertController extends Controller
 	  	$_POST['find'] = "lamri";
 	  }
 	  
-      $user = $userManager->findUserBy(array('username' => htmlspecialchars($_POST['find'])));
+	  
+	  $user = $userManager->findUserBy(
+	    array('username' => htmlspecialchars($_POST['find'])), // Critere
+	    array('date' => 'desc'),  // Tri
+	    50,                       // Limite
+	    0                         // debut
+	  );
 	  
 	  if(empty($user)){
+		// On ajoute un message flash arbitraire
+		$request->getSession()->getFlashBag()->add('info', 'Aucun utilisateur trouvé');
 	  	return $this->redirectToRoute('oc_platform_home', array());
 	  }
-	  
 	  
 	return $this->render('OCPlatformBundle:Advert:searchinguser.html.twig', array(
       'user'        => $user,
     ));
   }
 
-  public function viewAction($id)
+  public function viewAction(Advert $advert)
   {
     $em = $this->getDoctrine()->getManager();
-
-    // Pour récupérer une seule annonce, on utilise la méthode find($id)
-    $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
-
-    // $advert est donc une instance de OC\PlatformBundle\Entity\Advert
-    // ou null si l'id $id n'existe pas, d'où ce if :
-    if (null === $advert) {
-      throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
-    }
 
     // Récupération de la liste des candidatures de l'annonce
     $listApplications = $em

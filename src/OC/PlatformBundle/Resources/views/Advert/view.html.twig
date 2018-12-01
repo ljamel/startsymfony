@@ -21,7 +21,9 @@
 
   <h2>{{ advert.title }}</h2>
   <i>Par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}</i>
-
+		  {% if advert.image is not null %}
+		    <img src="{{ advert.image.url }}" alt="{{ advert.image.alt }}">
+		  {% endif %}
   <div class="well">
     {{ advert.content }}
   </div>
@@ -37,7 +39,7 @@
 
   {% if listAdvertSkills|length > 0 %}
     <div>
-      Cette annonce requiert les compétences suivantes :
+      Catégories :
       <ul>
         {% for advertSkill in listAdvertSkills %}
           <li>{{ advertSkill.skill.name }} : niveau {{ advertSkill.level }}</li>

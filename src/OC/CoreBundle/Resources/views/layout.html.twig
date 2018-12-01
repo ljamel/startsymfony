@@ -44,10 +44,14 @@
         <h3>Utilisateur</h3>
         {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
           Connecté en tant que {{ app.user.username }}
-          <br>
+          <br />
           <a href="{{ path('fos_user_security_logout') }}">Déconnexion</a>
+		  <br />
+          <a href="./user/{{ app.user.username }}">Mon profil</a>
+		  
         {% else %}
           <a href="{{ path('fos_user_security_login') }}">Connexion</a>
+          <a href="./register">Inscription</a>
         {% endif %}
 		  
 		{% if app.user and is_granted('ROLE_ADMIN') %}

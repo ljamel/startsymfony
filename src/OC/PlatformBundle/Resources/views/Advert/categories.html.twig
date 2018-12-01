@@ -1,0 +1,16 @@
+{# src/OC/PlatformBundle/Resources/view/Advert/view.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block title %}
+  Lecture d'une annonce - {{ parent() }}
+{% endblock %}
+
+{% block ocplatform_body %}
+
+ <ul>
+  {% for advert in adverts %}
+    <li>{{ advert.content }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

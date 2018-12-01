@@ -75,3 +75,22 @@ stof_doctrine_extensions:
     orm:
         default:
             sluggable: true
+
+
+fos_user:
+    db_driver:     orm                       # Le type de BDD à utiliser, nous utilisons l'ORM Doctrine depuis le début
+    firewall_name: main                      # Le nom du firewall derrière lequel on utilisera ces utilisateurs
+    user_class:    OC\UserBundle\Entity\User # La classe de l'entité User que nous utilisons
+    from_email:
+        address: "%mailer_user%"
+        sender_name: "%mailer_user%"
+    registration:
+        form:
+            type: AppBundle\Form\RegistrationType
+
+
+services:
+  twig.extension.text:
+       class: Twig_Extensions_Extension_Text
+       tags:
+           - { name: twig.extension }

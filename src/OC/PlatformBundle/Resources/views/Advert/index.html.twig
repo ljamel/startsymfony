@@ -13,24 +13,39 @@
 <!-- affiche 1 si c'est du spam sinon rien -->
 {{ checkIfSpam('leListe des annoncesiouutgyuifuitftydListe d') }}
 
- <!-- affiche resultat par utilisateur -->
- {{ users }}
 
 
+<!-- message flash -->
+    {% if app.session.flashBag.has('info') %}
+        <div class="alert alert-info">
+            {% for msg in app.session.flashBag.get('info') %}
+                {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
   <ul>
     {% for advert in listAdverts %}
       <li>
-        <a href="{{ path('oc_platform_view', {'id': advert.id}) }}">
+        <a href="{{ path('oc_platform_view', {'slug': advert.slug}) }}">
           {{ advert.title }}
         </a>
         par {{ advert.author }},
-        le {{ advert.date|date('d/m/Y') }}
+        le {{ advert.date|date('d/m/Y') }}	 
       </li>
 	  <p>{{ advert.content | truncate(150) }}</p>
     {% else %}
       <li>Pas (encore !) d'annonces</li>
     {% endfor %}
-  </ul>
+  </ul> 
+
+    <div>
+      Catégories :
+      <ul>
+        {% for advertSkill in listAdvertSkills %}
+		  <li><a href="{{ path('oc_platform_cat', {'name': advertSkill.name}) }}">{{ advertSkill.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
 
   <ul class="pagination">
     {# On utilise la fonction range(a, b) qui crée un tableau de valeurs entre a et b #}

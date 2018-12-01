@@ -5,12 +5,12 @@
 <ul class="nav nav-pills nav-stacked">
   {% for advert in listAdverts %}
     <li>
-      <a href="{{ path('oc_platform_view', {'id': advert.id}) }}">
+      <a href="{{ path('oc_platform_view', {'slug': advert.slug}) }}">
         {{ advert.title }}
       </a>
     </li>
   {% endfor %}
- <form action="{{ path('oc_platform_home') }}searchinguser/" method="post">
+ <form action="{{ path('oc_platform_home') }}/../searchinguser/" method="post">
   <input type="text" name="find"><br>
   <input type="submit" value="Chercher un utilisateur">
 </form> 

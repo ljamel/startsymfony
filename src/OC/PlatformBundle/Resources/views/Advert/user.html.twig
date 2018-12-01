@@ -8,19 +8,10 @@
 
 {% block ocplatform_body %}
 
-  <h2>Profil utilisateur</h2>
+  <h2>Profile</h2>
 
-<!-- affiche 1 si c'est du spam sinon rien -->
-
- <!-- affiche resultat par utilisateur -->
-
-Email
- {{ user.email }} 
-
-ID
- {{ user.id }}
-
-
-
+{{ user.username }}
+{{ user.email }}
+{{ user }}
 
 {% endblock %}
