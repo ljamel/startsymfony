@@ -6,6 +6,7 @@ namespace OC\PlatformBundle\Controller;
 
 use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Entity\Category;
+use OC\PlatformBundle\Entity\Friends;
 use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -197,6 +198,43 @@ class AdvertController extends Controller
       'user'        => $user,
     ));
   }
+
+	
+	// A finir pour pouvoir ajouter des amies ---------------------------------------------
+	public function addfriendAction(Request $request, $id) {
+		
+		$em = $this->get('fos_user.user_manager');
+		
+		// récupérer l'utilisateur courant
+		$user=$this->getUser();
+		$userc = $em->findUserBy(array('id' => $user->getId()));
+		
+		// demande d'ajout d'amie
+		$friend = $em->findUserBy(array('id' => $id));
+	
+		$friends = new Friends();
+		
+		// pour l'entiter friendswaiting 11+=attente, 1=accepter, 2=refuser.
+		$friends->setUserid($userc->getId());
+		$friends->setFriendsid($friend->getId());		
+		$friends->setFriendswaitingid($userc->getId() . $friend->getId());		
+
+		// connection en base de donnée
+		$bdd = $this->getDoctrine()->getManager();
+		$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => $userc->getId() . $friend->getId()));
+		
+	    // préparer pour l'envoi en base de donnée
+		$bdd->persist($friends);
+		// permet de toutes envoyer en base de donnée
+		if($verif === $link and 10 < $link) {
+			$bdd->flush();
+			$request->getSession()->getFlashBag()->add('info', "Demande d'amie effectuer.");
+			return $this->redirectToRoute('oc_platform_home');	
+		}
+		
+		$request->getSession()->getFlashBag()->add('info', "Demande d'amie déjà effectuer.");
+		return $this->redirectToRoute('oc_platform_home');
+	}
 
   public function viewAction(Advert $advert)
   {

@@ -14,4 +14,8 @@
 {{ user.email }}
 {{ user }}
 
+<br />
+
+<a href="{{ path('oc_platform_edituser', {'id': user.id}) }}"> Modifier mon profile </a>
+
 {% endblock %}

@@ -7,27 +7,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-
-
 use AppBundle\Entity\User;
+
 /**
  * User controller.
  *
  */
 class UserController extends Controller
 {
-     /**
-     * Lists all Users.
-     *
-     */
-    public function indexAction()
-    {
-        $userManager = $this->get('fos_user.user_manager');
-        $users = $userManager->findUsers();
-        return $this->render('user/index.html.twig', array(
-            'users' => $users,
-        ));
-    }
 
     /**
      * Displays a form to edit an existing Users.
