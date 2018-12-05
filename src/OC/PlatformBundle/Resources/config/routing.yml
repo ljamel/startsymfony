@@ -23,6 +23,12 @@ oc_platform_searchinguser:
     defaults:
         _controller: OCPlatformBundle:Advert:searchinguser
 
+oc_platform_finduser:
+    path:      /finduser/{find}
+    defaults:
+        _controller: OCPlatformBundle:Advert:finduser
+        page:        1
+
 oc_platform_deleteuser:
     path:      /deleteuser/{user}
     defaults:
@@ -62,6 +68,11 @@ oc_platform_edituseractive:
     path:      /edituseractive/
     defaults:
         _controller: AppBundle:User:edituseractive
+
+oc_platform_alowuser:
+    path:      /alowuser/{id}
+    defaults:
+        _controller: AppBundle:User:alowuser
 
 oc_platform_edituseradmin:
     path:      /edituseradmin/{id}

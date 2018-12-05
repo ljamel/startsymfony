@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use AppBundle\Entity\User;
+use OC\PlatformBundle\Entity\Friends;
 
 /**
  * User controller.
@@ -116,6 +117,33 @@ class UserController extends Controller
             'edit_form' => $form->createView(),
 
         ));
+		
+	}
+	
+	public function alowuserAction(Request $request, $id) {
+	
+		$em = $this->get('fos_user.user_manager');
+		
+		// récupérer l'utilisateur courant
+		$user=$this->getUser();
+		$userc = $em->findUserBy(array('id' => $user->getId()));
+		
+		// connection en base de donnée
+		$bdd = $this->getDoctrine()->getManager();
+		$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 3));
+		
+		$old = $bdd->getRepository('OCPlatformBundle:Friends')->findOneBy(array('friendsid' => $id));	
+		$bdd->remove($old);
+		$bdd->flush();
+		
+		$friends = new Friends();
+		$friends->setUserid($userc->getId());
+		$friends->setFriendsid($id);		
+		$friends->setFriendswaitingid(1);	
+		$bdd->persist($friends);
+		$bdd->flush();
+		$request->getSession()->getFlashBag()->add('info', "Accepter.");
+		return $this->redirectToRoute('oc_platform_home');	
 		
 	}
 }

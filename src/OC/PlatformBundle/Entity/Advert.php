@@ -7,9 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use OC\PlatformBundle\Validator\Antiflood;
-// On rajoute ce use pour la contrainte :
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-// N'oubliez pas de rajouter ce « use », il définit le namespace pour les annotations de validation
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 

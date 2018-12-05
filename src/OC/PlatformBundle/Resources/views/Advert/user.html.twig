@@ -14,6 +14,19 @@
 {{ user.email }}
 {{ user }}
 
+Amie
+{% for friends in friendsallow %}
+<br />
+<a href="{{ path('oc_platform_finduser', {'find': friends.friendsid}) }}">lien</a>
+{% endfor %}
+<br />
+Invitation reçu en attente
+{% for linkwaiting in linkwaitings %}
+<br />
+<a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
+{% endfor %}
+
+
 <br />
 
 <a href="{{ path('oc_platform_edituser', {'id': user.id}) }}"> Modifier mon profile </a>

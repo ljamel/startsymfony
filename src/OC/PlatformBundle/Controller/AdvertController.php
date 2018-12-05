@@ -128,32 +128,39 @@ class AdvertController extends Controller
   }
 	
   public function userAction($user){
-  		// Pour récupérer le service UserManager du bundle
+  	// Pour récupérer le service UserManager du bundle
 	$userManager = $this->get('fos_user.user_manager');
-	  
-	// Pour récupérer la liste de tous les utilisateurs
-    $user = $userManager->findUserBy(array('username' => $user));
+	  	  
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+	$advert = $userManager->findUserBy(array('id' => $user->getId()));
 
     $nbPerPage = 3;
     $page = 1;
-
-    $listAdverts = $this->getDoctrine()
-      ->getManager()
-      ->getRepository('OCPlatformBundle:Advert')
-      ->getAdverts(1, $nbPerPage)
-    ;
-
+  
+	$bdd = $this->getDoctrine()->getManager();
+	  
+    $listAdverts = $bdd->getRepository('OCPlatformBundle:Advert')->getAdverts(1, $nbPerPage);
+	  
+	$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId()));
+	  
+	$linkwaitings = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 3));
+	  
+	// Les amies déjà accpeter
+	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 1));
+	  
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
-
-
 
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:user.html.twig', array(
       'listAdverts' => $listAdverts,
+      'links'       => $link,
+      'linkwaitings'=> $linkwaitings,
+      'friendsallow'=> $friendsallow,
       'nbPages'     => $nbPages,
       'page'        => $page,
-      'user'        => $user,
+      'user'        => $advert,
     ));
   }
 
@@ -177,10 +184,9 @@ class AdvertController extends Controller
 	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE LA RECHERCHE
 	$userManager = $this->get('fos_user.user_manager');
 	  if(empty($_POST['find'])){
-	  	$_POST['find'] = "lamri";
+	  	$_POST['find'] = $find;
 	  }
-	  
-	  
+	  	  
 	  $user = $userManager->findUserBy(
 	    array('username' => htmlspecialchars($_POST['find'])), // Critere
 	    array('date' => 'desc'),  // Tri
@@ -189,7 +195,38 @@ class AdvertController extends Controller
 	  );
 	  
 	  if(empty($user)){
+
 		// On ajoute un message flash arbitraire
+		$request->getSession()->getFlashBag()->add('info', 'Aucun utilisateur trouvé');
+	  	return $this->redirectToRoute('oc_platform_home', array());
+	  }
+	  
+	  if(empty($user)){ 
+		 // On ajoute un message flash arbitraire
+		$request->getSession()->getFlashBag()->add('info', 'Aucun utilisateur trouvé');
+	  	return $this->redirectToRoute('oc_platform_home', array());
+	  }
+	  
+	return $this->render('OCPlatformBundle:Advert:searchinguser.html.twig', array(
+      'user'        => $user,
+    ));
+  }
+	
+  public function finduserAction($find, Request $request) {
+	  
+	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE LA RECHERCHE
+	$userManager = $this->get('fos_user.user_manager');
+	  	  
+	  $user = $userManager->findUserBy(
+	    array('id' => htmlspecialchars($find)), // Critere
+	    array('date' => 'desc'),  // Tri
+	    50,                       // Limite
+	    0                         // debut
+	  );
+
+	  
+	  if(empty($user)){ 
+		 // On ajoute un message flash arbitraire
 		$request->getSession()->getFlashBag()->add('info', 'Aucun utilisateur trouvé');
 	  	return $this->redirectToRoute('oc_platform_home', array());
 	  }
@@ -214,19 +251,19 @@ class AdvertController extends Controller
 	
 		$friends = new Friends();
 		
-		// pour l'entiter friendswaiting 11+=attente, 1=accepter, 2=refuser.
+		// pour l'entiter friendswaiting 11+=attente, 1=accepter, 0=refuser.
 		$friends->setUserid($userc->getId());
 		$friends->setFriendsid($friend->getId());		
-		$friends->setFriendswaitingid($userc->getId() . $friend->getId());		
+		$friends->setFriendswaitingid(3);		
 
 		// connection en base de donnée
 		$bdd = $this->getDoctrine()->getManager();
-		$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => $userc->getId() . $friend->getId()));
+		$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 3));
 		
 	    // préparer pour l'envoi en base de donnée
 		$bdd->persist($friends);
 		// permet de toutes envoyer en base de donnée
-		if($verif === $link and 10 < $link) {
+		if(3 < $link) {
 			$bdd->flush();
 			$request->getSession()->getFlashBag()->add('info', "Demande d'amie effectuer.");
 			return $this->redirectToRoute('oc_platform_home');	
