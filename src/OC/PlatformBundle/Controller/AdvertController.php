@@ -9,6 +9,7 @@ use OC\PlatformBundle\Entity\Category;
 use OC\PlatformBundle\Entity\Friends;
 use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
+use OC\PlatformBundle\Form\CkeditorType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -273,6 +274,36 @@ class AdvertController extends Controller
 		return $this->redirectToRoute('oc_platform_home');
 	}
 
+  // Gestion messagerie interne ----------------------------------------------------------------------------------lll
+  public function postprivateAction(Request $request, $id) {
+	
+  	$em = $this->get('fos_user.user_manager');
+		
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+	echo $user->getId();
+	echo $id;
+	  
+	$advert = new Advert();
+    $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
+
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+      $em = $this->getDoctrine()->getManager();
+      $em->persist($advert);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
+
+      return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+    }
+
+    return $this->render('OCPlatformBundle:Advert:add.html.twig', array(
+      'form' => $form->createView(),
+    ));
+	  
+	  
+  }
+	
   public function viewAction(Advert $advert)
   {
     $em = $this->getDoctrine()->getManager();
@@ -301,8 +332,6 @@ class AdvertController extends Controller
    */
   public function addAction(Request $request)
   {
-    // Plus besoin du if avec le security.context, l'annotation s'occupe de tout !
-    // Dans cette méthode, vous êtes sûrs que l'utilisateur courant dispose du rôle ROLE_AUTEUR
 
     $advert = new Advert();
     $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
