@@ -17,8 +17,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 
-
-
 class AdvertController extends Controller
 {
   public function indexAction($page)
@@ -94,10 +92,14 @@ class AdvertController extends Controller
       'name' => $name
     ));
   }	
-
+	
+   /**
+   * @Security("has_role('ROLE_ADMIN')")
+   */
   public function adminAction()
   {
-	  
+    // verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 	// Pour récupérer le service UserManager du bundle
 	$userManager = $this->get('fos_user.user_manager');
 	  
@@ -117,8 +119,6 @@ class AdvertController extends Controller
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
 
-
-
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:admin.html.twig', array(
       'listAdverts' => $listAdverts,
@@ -129,6 +129,9 @@ class AdvertController extends Controller
   }
 	
   public function userAction($user){
+	  
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
   	// Pour récupérer le service UserManager du bundle
 	$userManager = $this->get('fos_user.user_manager');
 	  	  
@@ -147,11 +150,16 @@ class AdvertController extends Controller
 	  
 	$linkwaitings = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 3));
 	  
-	// Les amies déjà accpeter
-	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 1));
+	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// _____________------------_____
+	  
+	// Les amies déjà accepter méthode multi critères
+	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
 	  
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
+	  
+	// Le nombre d'amies
+	$nbfriends = ceil(count($friendsallow));
 
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:user.html.twig', array(
@@ -162,6 +170,8 @@ class AdvertController extends Controller
       'nbPages'     => $nbPages,
       'page'        => $page,
       'user'        => $advert,
+      'nbfriends'   => $nbfriends,
+	  'messages'	=> $messages,
     ));
   }
 
@@ -277,10 +287,15 @@ class AdvertController extends Controller
   // Gestion messagerie interne ----------------------------------------------------------------------------------lll
   public function postprivateAction(Request $request, $id) {
 	
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+	 
   	$em = $this->get('fos_user.user_manager');
 		
 	// récupérer l'utilisateur courant
 	$user=$this->getUser();
+	
+	
 	echo $user->getId();
 	echo $id;
 	  

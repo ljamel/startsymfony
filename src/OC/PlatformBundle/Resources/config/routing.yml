@@ -56,7 +56,7 @@ oc_platform_postprivate:
         _controller: OCPlatformBundle:Advert:postprivate
 
 oc_platform_edit:
-    path:      /edit/{id}
+    path:      /edit/{slug}
     defaults:
         _controller: OCPlatformBundle:Advert:edit
     requirements:

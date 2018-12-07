@@ -39,7 +39,6 @@ class UserController extends Controller
 		
 		$form = $this->get('form.factory')->create(\AppBundle\Form\RegistrationType::class, $advert);
 
-        $form->remove('roles');
 
 		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 			$em->updateUser($advert);
@@ -57,6 +56,8 @@ class UserController extends Controller
 	// modifier son profile
 	public function edituseractiveAction(Request $request)
     {
+		// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	    $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 		
 		$em = $this->get('fos_user.user_manager');
 				

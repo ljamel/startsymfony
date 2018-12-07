@@ -1,191 +1,143 @@
-{% extends "OCPlatformBundle::layout.html.twig" %}
+{% extends "OCPlatformBundle::layout.html.twig" %} {% block ocplatform_body %}
 
-
-{% block ocplatform_body %}
-
-  <h2>Administration</h2>
+<h2>Administration</h2>
 
 
 {% for flashMessage in app.session.flashbag.get('success') %}
 <div class="alert alert-success">
-    {{ flashMessage }}
+	{{ flashMessage }}
 </div>
 {% endfor %}
 <div class="row">
-    <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-        <ul class="nav nav-tabs nav-justified">
-            <li class="active"><a href="#articles" data-toggle="tab">Articles</a></li>
-            <li><a href="#comments" data-toggle="tab">Comments</a></li>
-            <li><a href="#users" data-toggle="tab">Users</a></li>
-        </ul>
-    </div>
+	<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+		<ul class="nav nav-tabs nav-justified">
+			<li class="active"><a href="#articles" data-toggle="tab">Articles</a></li>
+			<li><a href="#comments" data-toggle="tab">Comments</a></li>
+			<li><a href="#users" data-toggle="tab">Users</a></li>
+		</ul>
+	</div>
 </div>
 <div class="tab-content">
-    <div class="tab-pane fade in active adminTable" id="articles">
-        {% if listAdverts %}
-        <div class="table-responsive">
-            <table class="table table-hover table-condensed">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Content</th>
-                        <th></th>  <!-- Actions column -->
-                    </tr>
-                </thead>
-                {% for article in listAdverts %}
-                <tr>
-                    <td><a class="articleTitle" href="{{ path('oc_platform_admin', { 'slug': article.slug }) }}">{{ article.title }}</a></td>
-                    <td>{{ article.content | truncate(50) }}</td>
-                    <td>
-                        <a href="{{ path('oc_platform_edit', { 'slug': article.slug }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
-                        <button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#articleDialog{{ article.id }}"><span class="glyphicon glyphicon-remove"></span>
+	<div class="tab-pane fade in active adminTable" id="articles">
+		{% if listAdverts %}
+		<div class="table-responsive">
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Content</th>
+						<th></th>
+						<!-- Actions column -->
+					</tr>
+				</thead>
+				{% for article in listAdverts %}
+				<tr>
+					<td><a class="articleTitle" href="{{ path('oc_platform_admin', { 'slug': article.slug }) }}">{{ article.title }}</a></td>
+					<td>{{ article.content | truncate(50) }}</td>
+					<td>
+						<a href="{{ path('oc_platform_edit', { 'slug': article.slug }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+						<button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#articleDialog{{ article.id }}"><span class="glyphicon glyphicon-remove"></span>
                         </button>
-                        <div class="modal fade" id="articleDialog{{ article.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                        <h4 class="modal-title" id="myModalLabel">Confirmation needed</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        Do you really want to delete this article ?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                        <a href="{{ path('oc_platform_delete', { 'slug': article.slug }) }}" class="btn btn-danger">Confirm</a>
-                                    </div>
-                                </div><!-- /.modal-content -->
-                            </div><!-- /.modal-dialog -->
-                        </div><!-- /.modal -->
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% else %}
-        <div class="alert alert-warning">No articles found.</div>
-        {% endif %}
-        <a href="{{ path('oc_platform_add') }}"><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add article</button></a>
-    </div>
-    <div class="tab-pane fade adminTable" id="comments">
-        <!-- TODO Insérer ici le code de gestion des commentaires -->
-        
-    </div>
-    <div class="tab-pane fade adminTable" id="users">{% if users %}
-        <div class="table-responsive">
-            <table class="table table-hover table-condensed">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th></th>  <!-- Actions column -->
-                    </tr>
-                </thead>
-                {% for user in users %}
-                <tr>
+						<div class="modal fade" id="articleDialog{{ article.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+									</div>
+									<div class="modal-body">
+										Voulez vous vraiment effacer ?
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+										<a href="{{ path('oc_platform_delete', { 'id': article.id }) }}" class="btn btn-danger">Confirm</a>
+									</div>
+								</div>
+								<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
+						<!-- /.modal -->
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% else %}
+		<div class="alert alert-warning">No articles found.</div>
+		{% endif %}
+		<a href="{{ path('oc_platform_add') }}"><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add article</button></a>
+	</div>
+	<div class="tab-pane fade adminTable" id="comments">
+		<!-- TODO Insérer ici le code de gestion des commentaires -->
+
+	</div>
+	<div class="tab-pane fade adminTable" id="users">{% if users %}
+		<div class="table-responsive">
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Nom</th>
+						<th>Email</th>
+						<th>Role</th>
+						<th></th>
+						<!-- Actions column -->
+					</tr>
+				</thead>
+				{% for user in users %}
+				<tr>
 					<td>{{ user.username }}</td>
 					<td>{{ user.email }}</td>
-                    <td>
-                        {% if user.roles == 'ROLE_ADMIN' %}
-                            Admin
-                        {% else %}
-                            User
-                        {% endif %}
-                    </td>
-                    <td>
- 
-                        <button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#userDialog{{ user.id }}"><span class="glyphicon glyphicon-remove"></span>
+					<td>
+						
+						{% if user.roles == 'ROLE_ADMIN' %} Admin {% else %} User {% endif %}
+					</td>
+					<td>
+
+						<a href="{{ path('oc_platform_edituser', {'id': user.id}) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+						<button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#userDialog{{ user.id }}"><span class="glyphicon glyphicon-remove"></span>
                         </button>
-                        <div class="modal fade" id="userDialog{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                        <h4 class="modal-title" id="myModalLabel">Confirmation needed</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        Do you really want to delete this user ?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                        <a href="{{ path('oc_platform_deleteuser') }}/{{ user.username  }}" class="btn btn-danger">Confirm</a>
-                                    </div>
-                                </div><!-- /.modal-content -->
-                            </div><!-- /.modal-dialog -->
-                        </div><!-- /.modal -->
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% else %}
-        <div class="alert alert-warning">No users found.</div>
-        {% endif %}
-        <a href="{{ path('fos_user_registration_register') }}"><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add user</button></a>
-        
-    </div>
+						<div class="modal fade" id="userDialog{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel">Confirmation needed</h4>
+									</div>
+									<div class="modal-body">
+										Do you really want to delete this user ?
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+										<a href="{{ path('oc_platform_deleteuser') }}/{{ user.username  }}" class="btn btn-danger">Confirm</a>
+									</div>
+								</div>
+								<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
+						<!-- /.modal -->
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% else %}
+		<div class="alert alert-warning">No users found.</div>
+		{% endif %}
+		<a href="{{ path('fos_user_registration_register') }}"><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add user</button></a>
+
+	</div>
 </div>
 
 
-
-
-  <ul class="pagination">
-    {# On utilise la fonction range(a, b) qui crée un tableau de valeurs entre a et b #}
-    {% for p in range(1, nbPages) %}
-      <li{% if p == page %} class="active"{% endif %}>
-        <a href="{{ path('oc_platform_admin', {'page': p}) }}">{{ p }}</a>
-      </li>
-    {% endfor %}
-  </ul>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<ul class="pagination">
+	{# On utilise la fonction range(a, b) qui crée un tableau de valeurs entre a et b #} {% for p in range(1, nbPages) %}
+	<li{% if p==page %} class="active" {% endif %}>
+		<a href="{{ path('oc_platform_admin', {'page': p}) }}">{{ p }}</a>
+		</li>
+		{% endfor %}
+</ul>
 
 
 {% endblock %}

@@ -21,14 +21,14 @@ class AdvertType extends AbstractType
 {
   public function buildForm(FormBuilderInterface $builder, array $options)
   {
-    // Arbitrairement, on récupère toutes les catégories qui commencent par "D"
-    $pattern = 'D%';
+    // Pour afficher que les categories qu'ont veut
+    $pattern = '%';
 
     $builder
       ->add('date',      DateTimeType::class)
       ->add('title',     TextType::class)
       ->add('author',    TextType::class)
-      ->add('image',     ImageType::class)
+      ->add('image',     ImageType::class, array('required' => false))
 	  ->add('content',   CkeditorType::class)
       ->add('categories', EntityType::class, array(
         'class'         => 'OCPlatformBundle:Category',
