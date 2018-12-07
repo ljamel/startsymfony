@@ -152,13 +152,13 @@ class AdvertController extends Controller
 	  
 	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// _____________------------_____
 	  
-	// Les amies déjà accepter méthode multi critères
+	// Les amis déjà accepter méthode multi critères
 	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
 	  
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
 	  
-	// Le nombre d'amies
+	// Le nombre d'amis
 	$nbfriends = ceil(count($friendsallow));
 
     // On donne toutes les informations nécessaires à la vue

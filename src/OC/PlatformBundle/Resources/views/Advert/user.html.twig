@@ -14,7 +14,7 @@
 {{ user.email }}
 {{ user }}
 
-Amie 
+Amis
 {{ nbfriends }}
 {% for friends in friendsallow %}
 <br />
@@ -35,11 +35,11 @@ Messagerie interne ci-dessous
 {% for message in messages %}
 <p>
 titre 
-{{ message.title }}<br />
+<h2>{{ message.title }}</h2><br />
 Message
 {{ message.content }}<br />
 Auteur
-{{ message.content }}
+{{ message.author }}
 </p>
 {% endfor %}
 
