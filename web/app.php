@@ -25,7 +25,7 @@ $loader = require __DIR__.'/../app/autoload.php';
 Debug::enable();
 //require_once __DIR__.'/../app/AppCache.php';
 
-$kernel = new AppKernel('prod', true);
+$kernel = new AppKernel('prod', false);
 $kernel->loadClassCache();
 //$kernel = new AppCache($kernel);
 

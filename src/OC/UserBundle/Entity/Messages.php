@@ -15,7 +15,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\AdvertRepository")
  * @ORM\HasLifecycleCallbacks()
  *
- * @UniqueEntity(fields="title", message="Une annonce existe déjà avec ce titre.")
  */
 class Messages
 {
@@ -75,6 +74,10 @@ class Messages
   private $content;
 
 
+	public function __construct()
+    {
+		$this->date = new \Datetime();
+    }
     /**
      * Get id
      *

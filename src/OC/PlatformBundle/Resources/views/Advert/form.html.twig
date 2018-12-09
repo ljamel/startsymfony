@@ -36,15 +36,19 @@
     </div>
   </div>
 
-  {{ form_row(form.author) }}
+  {{ app.user }}
 
   {% if form.published is defined %}
     {{ form_row(form.published) }}
   {% endif %}
-
+	
+  {% if form.image is defined %}
   {{ form_row(form.image) }}
+  {% endif %}
 
+  {% if form.categories is defined %}
   {{ form_row(form.categories) }}
+  {% endif %}
 
   {# Pour le bouton, pas de label ni d'erreur, on affiche juste le widget #}
   {{ form_widget(form.save, {'attr': {'class': 'btn btn-primary'}}) }}

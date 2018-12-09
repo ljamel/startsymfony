@@ -7,9 +7,11 @@ namespace OC\PlatformBundle\Controller;
 use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Entity\Category;
 use OC\PlatformBundle\Entity\Friends;
+use OC\UserBundle\Entity\Messages;
 use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Form\CkeditorType;
+use OC\PlatformBundle\Form\MessageType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,7 +65,6 @@ class AdvertController extends Controller
 	  ->getRepository('OCPlatformBundle:Advert')
 	;
 
-	// yyeeesss ça fonctionnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnneeeeeee
 	$graphisme = array('cat' => $name);
 	  
 	$adverts = $adverts->getAdvertWithCategories($graphisme);
@@ -294,25 +295,33 @@ class AdvertController extends Controller
 		
 	// récupérer l'utilisateur courant
 	$user=$this->getUser();
-	
-	
+
 	echo $user->getId();
 	echo $id;
-	  
-	$advert = new Advert();
-    $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
+	echo 'ohniobj';
+	
+	// changer l'entiter advert pour envoyer dans la bonne table
+	$advert = new Messages();
+    $form   = $this->get('form.factory')->create(MessageType::class, $advert);
+	$form->remove('categories');
+	$form->remove('image');
+	
 
     if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+	  $advert->setUserreceived($id);
+	  $advert->setAuthor($user->getId());
       $em = $this->getDoctrine()->getManager();
       $em->persist($advert);
       $em->flush();
 
-      $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
-
-      return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+      $request->getSession()->getFlashBag()->add('info', 'Message envoyé.');
+ 	  return $this->redirectToRoute('oc_platform_postprivate', array(
+      'form' => $form->createView(),
+	  'id'   => $id,
+    ));
     }
 
-    return $this->render('OCPlatformBundle:Advert:add.html.twig', array(
+    return $this->render('OCPlatformBundle:Advert:message.html.twig', array(
       'form' => $form->createView(),
     ));
 	  

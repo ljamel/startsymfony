@@ -85,11 +85,18 @@ oc_platform_edituseradmin:
         _controller: AppBundle:User:edituseradmin
     requirements:
         id: \d+
-# ajouter un amie (pour le faire fonctionner je doit travailler sur le controleur)
+
 oc_platform_addfriend:
     path:      /addfriend/{id}
     defaults:
         _controller: OCPlatformBundle:Advert:addfriend
+    requirements:
+        id: \d+
+# envoi de message priver à finir ---------------------------------------------------
+oc_platform_postprivate:
+    path:      /postprivate/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:postprivate
     requirements:
         id: \d+
 
