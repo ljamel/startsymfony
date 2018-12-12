@@ -1,0 +1,24 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/add.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block body %}
+
+Messagerie interne ci-dessous
+{% for message in messages %}
+
+titre 
+<h2>{{ message.title }}</h2><br />
+Message
+<p>
+
+<a href="{{ path('oc_platform_postprivate', {'id': message.author}) }}">Répondre au message</a>
+{% autoescape %}
+{{ message.content|raw }}<br />
+Auteur
+{{ message.author }}
+</p>
+{% endautoescape %}
+{% endfor %}
+
+{% endblock %}

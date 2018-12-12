@@ -7,7 +7,10 @@ namespace OC\PlatformBundle\Controller;
 use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Entity\Category;
 use OC\PlatformBundle\Entity\Friends;
+use OC\PlatformBundle\Entity\Comment;
+use OC\PlatformBundle\Repository\AdvertRepository;
 use OC\UserBundle\Entity\Messages;
+use OC\PlatformBundle\Form\CommentType;
 use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Form\CkeditorType;
@@ -17,12 +20,16 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Dwr\AvatarBundle\Model\AvatarFactory;
+use Dwr\AvatarBundle\Model\PlainAvatar;
+use Dwr\AvatarBundle\Model\ProfileAvatar;
 
 
 class AdvertController extends Controller
 {
   public function indexAction($page)
   {
+	$title = $page;
     $nbPerPage = 3;
 
     // On récupère notre objet Paginator
@@ -45,14 +52,43 @@ class AdvertController extends Controller
       ->getManager()
       ->getRepository('OCPlatformBundle:Category')
       ->findAll()
+    ;	
+	  
+	// Pour les meta tags et titre - - ----------
+	$metas = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Advert')
+      ->findOneBy(array(), array('id' => 'desc'))
     ;
-
+	  
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
       'listAdverts' => $listAdverts,
       'listAdvertSkills' => $listAdvertSkills,
       'nbPages'     => $nbPages,
       'page'        => $page,
+      'metatag'        => $metas,
+    ));
+  }
+
+  public function commentAction(Request $request, $id) {
+  	
+    $advertid = new  Comment();
+    $form   = $this->get('form.factory')->create(CommentType::class, $advertid);
+	
+
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+      $em = $this->getDoctrine()->getManager();
+	  $advertid->setAdvertid(8);
+      $em->persist($advertid);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('notice', 'Commentaire envoyé.');
+
+    }
+
+    return $this->render('OCPlatformBundle:Advert:comment.html.twig', array(
+      'form' => $form->createView(),
     ));
   }
 	
@@ -116,6 +152,13 @@ class AdvertController extends Controller
       ->getRepository('OCPlatformBundle:Advert')
       ->getAdverts(1, $nbPerPage)
     ;
+	  
+    // Récupération des AdvertSkill de l'annonce
+    $comments = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Comment')
+      ->findBy(array('published' => 1))
+    ;
 
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
@@ -125,7 +168,8 @@ class AdvertController extends Controller
       'listAdverts' => $listAdverts,
       'nbPages'     => $nbPages,
       'page'        => $page,
-      'users'        => $users,
+      'users'       => $users,
+	  'comments'    => $comments, 
     ));
   }
 	
@@ -153,7 +197,7 @@ class AdvertController extends Controller
 	  
 	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// _____________------------_____
 	  
-	// Les amis déjà accepter méthode multi critères
+	// Les amis déjà accepter, méthode multi critères
 	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
 	  
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
@@ -162,6 +206,16 @@ class AdvertController extends Controller
 	// Le nombre d'amis
 	$nbfriends = ceil(count($friendsallow));
 
+	$avatar = new AvatarFactory();
+    $profileAvatar = $avatar->generate(new ProfileAvatar(140, 140)); 
+	$image = 'images/' . $user->getUsername() . 'avatar.jpg';
+	if(file_exists($image)) {
+		$gravatar = $image;
+	} else {
+		$gravatar = $profileAvatar->save('images/', $image);
+	}
+	  
+	  
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:user.html.twig', array(
       'listAdverts' => $listAdverts,
@@ -173,6 +227,7 @@ class AdvertController extends Controller
       'user'        => $advert,
       'nbfriends'   => $nbfriends,
 	  'messages'	=> $messages,
+      'profileAvatar'        => $gravatar,
     ));
   }
 
@@ -190,6 +245,26 @@ class AdvertController extends Controller
 	  
 	return $this->redirectToRoute('oc_platform_admin', array());
   }  
+  
+  public function deletecommentAction(Request $request, $id) {
+  		  
+    $em = $this->getDoctrine()->getManager();
+
+    $advert = $em->getRepository('OCPlatformBundle:Comment')->find($id);
+
+    if (null === $advert) {
+      throw new NotFoundHttpException("Le commentaire d'id ".$id." n'existe pas.");
+    }else {
+      $em->remove($advert);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('info', "Le commentaire a bien été supprimé.");
+
+      return $this->redirectToRoute('oc_platform_admin');
+    }
+	  
+	return $this->redirectToRoute('oc_platform_admin', array());
+  }
   
   public function searchinguserAction(Request $request) {
 	  
@@ -285,6 +360,34 @@ class AdvertController extends Controller
 		return $this->redirectToRoute('oc_platform_home');
 	}
 
+  public function messageboxAction(Request $request, $id) {
+  		// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+  	// Pour récupérer le service UserManager du bundle
+	$userManager = $this->get('fos_user.user_manager');
+	  	  
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+
+    $nbPerPage = 3;
+    $page = 1;
+  
+	$bdd = $this->getDoctrine()->getManager();
+	  
+	// ajouter des critèrs de séléctions pour la sécurité et afficher un message a la fois
+	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId(), 'id' => $id));
+	  
+    $nbPages = ceil(count($messages) / $nbPerPage);
+	  
+
+    // On donne toutes les informations nécessaires à la vue
+    return $this->render('OCPlatformBundle:Advert:messagebox.html.twig', array(
+      'nbPages'     => $nbPages,
+      'page'        => $page,
+	  'messages'	=> $messages,
+    ));
+  }
+	
   // Gestion messagerie interne ----------------------------------------------------------------------------------lll
   public function postprivateAction(Request $request, $id) {
 	
@@ -328,11 +431,14 @@ class AdvertController extends Controller
 	  
   }
 	
-  public function viewAction(Advert $advert)
+  public function viewAction(Advert $advert, Request $request)
   {
     $em = $this->getDoctrine()->getManager();
 
-    // Récupération de la liste des candidatures de l'annonce
+	$this->get('fos_user.user_manager');		
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+	  
     $listApplications = $em
       ->getRepository('OCPlatformBundle:Application')
       ->findBy(array('advert' => $advert))
@@ -342,12 +448,50 @@ class AdvertController extends Controller
     $listAdvertSkills = $em
       ->getRepository('OCPlatformBundle:AdvertSkill')
       ->findBy(array('advert' => $advert))
+    ;    
+	
+    // Pour les meta tags et titre - - ----------
+	$metas = $em
+      ->getRepository('OCPlatformBundle:Advert')
+      ->findOneBy(array('slug' => $advert->getSlug()), array('id' => 'desc'))
     ;
+	
+		
+	// Récupération des AdvertSkill de l'annonce
+    $comments = $em
+      ->getRepository('OCPlatformBundle:Comment')
+      ->findBy(array('title' => $metas->getSlug()))
+    ;
+	
+	$advertid = new  Comment();
+    $form   = $this->get('form.factory')->create(CommentType::class, $advertid);
+	
+
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+      $em = $this->getDoctrine()->getManager();
+	  $advertid->setAdvertid($metas->getId());
+		
+	  // Le title fera lien entre l'article et le commentaire
+	  $advertid->setTitle($advert->getSlug());
+		
+	  $advertid->setAuthor($user);
+	
+      $em->persist($advertid);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('notice', 'Commentaire envoyé.');
+	  return $this->redirect($request->getUri());
+
+    }
+	
 
     return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
       'advert'           => $advert,
       'listApplications' => $listApplications,
       'listAdvertSkills' => $listAdvertSkills,
+	  'metatag'			 => $metas,
+	  'comments'		 => $comments,
+	  'form' 			 => $form->createView(),
     ));
   }
 
@@ -367,7 +511,7 @@ class AdvertController extends Controller
 
       $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
 
-      return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+      return $this->redirectToRoute('oc_platform_view', array('slug' => $advert->getSlug()));
     }
 
     return $this->render('OCPlatformBundle:Advert:add.html.twig', array(

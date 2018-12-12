@@ -23,6 +23,7 @@ class AppKernel extends Kernel
             new OC\UserBundle\OCUserBundle(),
             new AppBundle\AppBundle(),
 			new FOS\CKEditorBundle\FOSCKEditorBundle(),
+			new Dwr\AvatarBundle\DwrAvatarBundle(),
 			
         );
 

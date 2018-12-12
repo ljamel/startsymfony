@@ -6,7 +6,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{% block title %}OC Plateforme{% endblock %}</title>
+    <title>{% block title %} {% if metatag.title is defined %} {{ metatag.title }} {% endif %}{% endblock %}</title>
+	<meta name="description" content="{% if metatag is defined %} {{ metatag.content }} {% endif %}" />
 
     {% block stylesheets %}
       {# On charge le CSS de bootstrap depuis le site directement #}
@@ -17,7 +18,7 @@
   <body>
   <div class="container">
     <div id="header" class="jumbotron">
-      <h1>Ma plateforme d'annonces</h1>
+      <h1>{% if metatag is defined %}{{ metatag.title }} {% endif %}</h1>
       <p>
         Ce projet est propulsé par Symfony, et construit grâce au MOOC OpenClassrooms et SensioLabs.
       </p>

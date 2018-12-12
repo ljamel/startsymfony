@@ -8,6 +8,14 @@ oc_platform_home:
     requirements:
         id: \d+
 
+oc_platform_comment:
+    path:      /comment/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:comment
+        page:        1
+    requirements:
+        id: \d+
+
 oc_platform_admin:
     path:      /admin/
     defaults:
@@ -33,6 +41,12 @@ oc_platform_deleteuser:
     path:      /deleteuser/{user}
     defaults:
         _controller: OCPlatformBundle:Advert:deleteuser
+        user:        1888888888888888888888888888
+
+oc_platform_deletecomment:
+    path:      /deletecomment/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:deletecomment
         user:        1888888888888888888888888888
 
 oc_platform_view:
@@ -92,11 +106,18 @@ oc_platform_addfriend:
         _controller: OCPlatformBundle:Advert:addfriend
     requirements:
         id: \d+
-# envoi de message priver à finir ---------------------------------------------------
+
 oc_platform_postprivate:
     path:      /postprivate/{id}
     defaults:
         _controller: OCPlatformBundle:Advert:postprivate
+    requirements:
+        id: \d+
+
+oc_platform_messagebox:
+    path:      /messagebox/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:messagebox
     requirements:
         id: \d+
 

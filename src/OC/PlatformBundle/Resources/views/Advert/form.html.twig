@@ -36,7 +36,7 @@
     </div>
   </div>
 
-  {{ app.user }}
+  
 
   {% if form.published is defined %}
     {{ form_row(form.published) }}
@@ -48,6 +48,10 @@
 
   {% if form.categories is defined %}
   {{ form_row(form.categories) }}
+  {% endif %}
+	
+  {% if form.categories is defined %}
+  {{ form_row(form.author) }}
   {% endif %}
 
   {# Pour le bouton, pas de label ni d'erreur, on affiche juste le widget #}

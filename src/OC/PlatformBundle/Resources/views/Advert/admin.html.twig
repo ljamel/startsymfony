@@ -8,6 +8,14 @@
 	{{ flashMessage }}
 </div>
 {% endfor %}
+<!-- message flash -->
+    {% if app.session.flashBag.has('info') %}
+        <div class="alert alert-info">
+            {% for msg in app.session.flashBag.get('info') %}
+                {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
 <div class="row">
 	<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 		<ul class="nav nav-tabs nav-justified">
@@ -32,7 +40,8 @@
 				</thead>
 				{% for article in listAdverts %}
 				<tr>
-					<td><a class="articleTitle" href="{{ path('oc_platform_admin', { 'slug': article.slug }) }}">{{ article.title }}</a></td>
+					<td>
+						<a href="{{ path('oc_platform_view', {'slug': article.slug}) }}">{{ article.title }}</a></td>
 					<td>{{ article.content | truncate(50) }}</td>
 					<td>
 						<a href="{{ path('oc_platform_edit', { 'slug': article.slug }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
@@ -68,9 +77,60 @@
 		{% endif %}
 		<a href="{{ path('oc_platform_add') }}"><button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus"></span> Add article</button></a>
 	</div>
+	
+	
 	<div class="tab-pane fade adminTable" id="comments">
 		<!-- TODO Insérer ici le code de gestion des commentaires -->
+			<div class="table-responsive">
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Titre</th>
+						<th>Auteur</th>
+						<th>Contenue</th>
+						<th>Etat</th>
+						<th></th>
+						<!-- Actions column -->
+					</tr>
+				</thead>
+				{% for comment in comments %}
+				<tr><td>
+						<a href="{{ path('oc_platform_view', {'slug': comment.title}) }}">
+							{{comment.title}}
+					    </a>
+					</td>
+					<td>{{comment.author}}</td>
+					<td>{{comment.content | truncate(150) }}</td>
+					<td></td>
+					<td>
 
+						<button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#userDialog{{ comment.id }}"><span class="glyphicon glyphicon-remove"></span>
+                        </button>
+						<div class="modal fade" id="userDialog{{ comment.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel">Confirmation needed</h4>
+									</div>
+									<div class="modal-body">
+										Do you really want to delete this user ?
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+										<a href="{{ path('oc_platform_deletecomment', { 'id': comment.id })  }}" class="btn btn-danger">Confirm</a>
+									</div>
+								</div>
+								<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
+						<!-- /.modal -->
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
 	</div>
 	<div class="tab-pane fade adminTable" id="users">{% if users %}
 		<div class="table-responsive">

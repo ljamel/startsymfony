@@ -7,6 +7,14 @@
 {% endblock %}
 
 {% block ocplatform_body %}
+<!-- message flash -->
+    {% if app.session.flashBag.has('notice') %}
+        <div class="alert alert-info">
+            {% for msg in app.session.flashBag.get('notice') %}
+                {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
 
   <div style="float: left; margin-right: 1em;">
     {# On vérifie qu'une image soit bien associée à l'article #}
@@ -27,7 +35,6 @@
   <div class="well">
     {{ advert.content }}
   </div>
-
   {% if not advert.categories.empty %}
     <p>
       Cette annonce est parue dans les catégories suivantes :
@@ -63,4 +70,13 @@
     </a>
   </p>
 
+// mon commentaire est afficher en dessous penser a ajouter un lien
+{% for comment in comments %}
+
+<p>{{comment.title}}</p>
+<p>{{comment.content}}</p>
+<p>{{comment.author}}</p>
+
+{% endfor %}
+{{ include("OCPlatformBundle:Advert:form.html.twig") }}
 {% endblock %}

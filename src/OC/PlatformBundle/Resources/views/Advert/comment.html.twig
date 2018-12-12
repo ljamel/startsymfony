@@ -4,14 +4,7 @@
 
 {% block body %}
 
-  <h2>Envoyer un messagedffgegfe</h2>
-   {% if app.session.flashBag.has('info') %}
-        <div class="alert alert-info">
-            {% for msg in app.session.flashBag.get('info') %}
-                {{ msg }}
-            {% endfor %}
-        </div>
-    {% endif %}
+  <h2>Ajouter un commentaire</h2>
 
   {{ include("OCPlatformBundle:Advert:form.html.twig") }}
 

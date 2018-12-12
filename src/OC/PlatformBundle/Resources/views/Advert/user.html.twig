@@ -19,6 +19,7 @@ Amis
 {% for friends in friendsallow %}
 <br />
 <a href="{{ path('oc_platform_finduser', {'find': friends.friendsid}) }}">lien</a>
+<a href="{{ path('oc_platform_postprivate', {'id': friends.friendsid}) }}">Envoyé un message</a>
 {% endfor %}
 <br />
 Invitation reçu en attente
@@ -27,7 +28,9 @@ Invitation reçu en attente
 <a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
 
 {% endfor %}
-
+<p></p>
+TODO changer l'url après avoir uploader sur le serveur
+<img src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/{{ profileAvatar }}" >imageavatar
 <br />
 <br />
 
@@ -36,12 +39,8 @@ Messagerie interne ci-dessous
 
 titre 
 <h2>{{ message.title }}</h2><br />
-Message
-<p>
-{{ message.content }}<br />
-Auteur
-{{ message.author }}
-</p>
+
+<a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">Lire le message</a>
 {% endfor %}
 
 

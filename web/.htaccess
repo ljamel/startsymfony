@@ -28,6 +28,9 @@ DirectoryIndex app.php
     # fits all solution. But as you do not need it in this case, you can comment
     # the following 2 lines to eliminate the overhead.
     RewriteCond %{REQUEST_URI}::$1 ^(/.+)/(.*)::\2$
+	RewriteCond %{REQUEST_URI} !/images/
+	RewriteCond %{REQUEST_URI} !/css/
+	RewriteCond %{REQUEST_URI} !/js/
     RewriteRule ^(.*) - [E=BASE:%1]
 
     # Sets the HTTP_AUTHORIZATION header removed by Apache
@@ -54,6 +57,9 @@ DirectoryIndex app.php
     RewriteRule ^ - [L]
 
     # Rewrite all other queries to the front controller.
+	RewriteCond %{REQUEST_URI} !/images/
+	RewriteCond %{REQUEST_URI} !/css/
+	RewriteCond %{REQUEST_URI} !/js/
     RewriteRule ^ %{ENV:BASE}/app.php [L]
 </IfModule>
 

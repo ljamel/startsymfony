@@ -22,8 +22,8 @@ $apcLoader->register(true);
  * @var Composer\Autoload\ClassLoader $loader
  */
 $loader = require __DIR__.'/../app/autoload.php';
-Debug::enable();
-//require_once __DIR__.'/../app/AppCache.php';
+
+require_once __DIR__.'/../app/AppCache.php';
 
 $kernel = new AppKernel('prod', false);
 $kernel->loadClassCache();
