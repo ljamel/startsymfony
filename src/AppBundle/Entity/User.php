@@ -1,12 +1,21 @@
-<?
+<?php
 // src/AppBundle/Entity/User.php
 
 namespace AppBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
+use Gedmo\Mapping\Annotation as Gedmo;
+use OC\PlatformBundle\Validator\Antiflood;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+
+
+/**
+ * @ORM\Entity
+ */
 /**
  * @UniqueEntity(fields="name", message="Ce pseudo existe déjà.")
  */
@@ -28,10 +37,19 @@ class User extends BaseUser
      *     max=255,
      *     minMessage="The name is too short.",
      *     maxMessage="The name is too long.",
-     *     groups={"Registration", "Profile", unique=true}
+     *     groups={"Registration", "Profile"}
      * )
      */
     protected $name;
+	
+	/**
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\Group")
+     * @ORM\JoinTable(name="fos_user_user_group",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id")}
+     * )
+     */
+    protected $groups;
 
   
   public function setId($id)

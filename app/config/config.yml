@@ -87,6 +87,8 @@ fos_user:
     registration:
         form:
             type: AppBundle\Form\RegistrationType
+    group:
+        group_class: AppBundle\Entity\Group
 
 
 services:
@@ -94,3 +96,7 @@ services:
        class: Twig_Extensions_Extension_Text
        tags:
            - { name: twig.extension }
+
+twig:
+    form_themes:
+        - '@FOSCKEditor/Form/ckeditor_widget.html.twig'

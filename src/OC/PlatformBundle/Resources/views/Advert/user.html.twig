@@ -28,8 +28,7 @@ Invitation reçu en attente
 <a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
 
 {% endfor %}
-<p></p>
-TODO changer l'url après avoir uploader sur le serveur
+<p>{{ path('oc_platform_home') }}</p>
 <img src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/{{ profileAvatar }}" >imageavatar
 <br />
 <br />
@@ -43,11 +42,37 @@ titre
 <a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">Lire le message</a>
 {% endfor %}
 
-
-<br />
 <br />
 <br />
 
-<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a>
+<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a>  
+<a href="{{ path('fos_user_change_password')}}"> modifier mon mot de pass</a>  
+
+<br /> 
+
+{% if teamview.title is defined %}
+{{teamview.title}} teeam
+{{teamview.content}} teeam
+{% else %}
+
+<a href="{{ path('fos_user_group_new')}}"> Crée une team </a> 
+
+<p>Ci dessous description de la team</p>
+{{ include("OCPlatformBundle:Advert:form.html.twig") }}
+{% endif %}
+
+<p>Affiche la liste de tous les menbres du groupe</p>
+
+{% for user in teamviewusers %}
+{{user.userid}} menbre du groupe
+{% endfor %}
+
+<p>Affiches tous les groupes (teams)</p>
+
+{% for user in teamviewusersall %}
+<p>{{user.id}} menbre du groupe</p>
+<p>{{user.title}} menbre du groupe</p>
+<p>{{user.content}} menbre du groupe</p>
+{% endfor %}
 
 {% endblock %}

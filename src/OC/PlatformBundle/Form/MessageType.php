@@ -25,7 +25,6 @@ class MessageType extends AbstractType
     $builder
       ->add('title',     TextType::class)
 	  ->add('content',   CkeditorType::class)
-      ->add('save',      SubmitType::class)
     ;
 
 

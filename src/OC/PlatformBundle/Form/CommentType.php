@@ -25,11 +25,10 @@ $pattern = '%';
 
     $builder
       ->add('date',      DateTimeType::class)
-      ->add('title',     TextType::class)
-	  ->add('content',   CkeditorType::class)
+	  ->add('content',   TextareaType::class)
 
 
-      ->add('save',      SubmitType::class)
+
     ;
 
   }

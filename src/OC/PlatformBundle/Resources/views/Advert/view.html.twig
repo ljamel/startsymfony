@@ -76,7 +76,11 @@
 <p>{{comment.title}}</p>
 <p>{{comment.content}}</p>
 <p>{{comment.author}}</p>
-
+<a href="{{ path('oc_platform_view', {'slug': comment.title}) }}/{{ comment.id }}"> Répondre </a>
 {% endfor %}
+
+
+
+<h2>Poster un commentaire</h2>
 {{ include("OCPlatformBundle:Advert:form.html.twig") }}
 {% endblock %}

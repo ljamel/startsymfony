@@ -98,7 +98,18 @@ class Advert
    * @Gedmo\Slug(fields={"title"})
    * @ORM\Column(name="slug", type="string", length=255, unique=true)
    */
-  private $slug;
+  private $slug;  
+	
+  /**
+   * @Gedmo\Slug(fields={"team"})
+   * @ORM\Column(name="team", type="string", length=255, unique=false)
+   */
+  private $team;
+	
+  /**
+   * @ORM\Column(name="isteam", type="boolean")
+   */
+  private $isteam = false;
 
   public function __construct()
   {
@@ -338,5 +349,37 @@ class Advert
   public function getSlug()
   {
       return $this->slug;
+  }
+	
+  /**
+   * @param string $team
+   */
+  public function setTeam($team)
+  {
+      $this->team = $team;
+  }
+
+  /**
+   * @return string
+   */
+  public function getTeam()
+  {
+      return $this->team;
+  }
+	
+  /**
+   * @param bool $isteam
+   */
+  public function setIsteam($isteam)
+  {
+    $this->isteam = $isteam;
+  }
+
+  /**
+   * @return bool
+   */
+  public function getisteam()
+  {
+    return $this->isteam;
   }
 }

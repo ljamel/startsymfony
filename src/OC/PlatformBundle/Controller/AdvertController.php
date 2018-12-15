@@ -5,6 +5,7 @@
 namespace OC\PlatformBundle\Controller;
 
 use OC\PlatformBundle\Entity\Advert;
+use OC\PlatformBundle\Entity\Team;
 use OC\PlatformBundle\Entity\Category;
 use OC\PlatformBundle\Entity\Friends;
 use OC\PlatformBundle\Entity\Comment;
@@ -15,6 +16,7 @@ use OC\PlatformBundle\Form\AdvertEditType;
 use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Form\CkeditorType;
 use OC\PlatformBundle\Form\MessageType;
+use OC\PlatformBundle\Form\TeamType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -173,7 +175,7 @@ class AdvertController extends Controller
     ));
   }
 	
-  public function userAction($user){
+  public function userAction(Request $request, $user){
 	  
 	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -194,8 +196,54 @@ class AdvertController extends Controller
 	$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId()));
 	  
 	$linkwaitings = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 3));
+	
+	$teamview = $bdd->getRepository('OCPlatformBundle:Advert')->findOneBy(array('team' => $user->getUsername()));
 	  
-	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// _____________------------_____
+	if(empty($teamview)) {
+		$teamviewusers = 'ok';
+	} else {
+		$teamviewusers = $bdd->getRepository('OCPlatformBundle:Team')->findBy(array('advertid' => $teamview->getSlug())); 	
+	}
+	
+	$teamviewusersall = $bdd->getRepository('OCPlatformBundle:Advert')->findBy(array('isteam' => true)); 	
+	  
+	$metas = $bdd
+      ->getRepository('OCPlatformBundle:Advert')
+      ->findBy(array('author' => $user), array('id' => 'desc'))
+    ;
+	  
+	var_dump($metas);
+	  
+	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// ______
+	 
+	// Servira de lien entre le groupe et l'article
+	$random = random_bytes(15);
+	 $random2 = sha1($random);
+	  
+	$teamc = new Advert();
+	$advertlink = new Team();
+    $form   = $this->get('form.factory')->create(AdvertType::class, $teamc);
+    $this->get('form.factory')->create(TeamType::class, $advertlink);
+
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+      $em = $this->getDoctrine()->getManager();
+	  $advertlink->setUserid($user->getUsername());
+	  $advertlink->setGradesid('master');
+	  $advertlink->setFriendswaitingid(1);
+	  $advertlink->setAdvertid($random2);
+	  
+	  
+	  $teamc->setTeam($user);
+	  $teamc->setIsteam(true);
+	  $teamc->setSlug($random2);
+      $em->persist($teamc);
+      $em->persist($advertlink);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('notice', 'Team crée.');
+	  return $this->redirect($request->getUri());
+    }
+
 	  
 	// Les amis déjà accepter, méthode multi critères
 	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
@@ -228,6 +276,11 @@ class AdvertController extends Controller
       'nbfriends'   => $nbfriends,
 	  'messages'	=> $messages,
       'profileAvatar'        => $gravatar,
+	  'form' 		=> $form->createView(),
+	  'teamview'    => $teamview,
+	  'teamviewusers' => $teamviewusers,
+	  'teamviewusersall' => $teamviewusersall,
+      
     ));
   }
 
@@ -433,6 +486,7 @@ class AdvertController extends Controller
 	
   public function viewAction(Advert $advert, Request $request)
   {
+	
     $em = $this->getDoctrine()->getManager();
 
 	$this->get('fos_user.user_manager');		
@@ -444,7 +498,6 @@ class AdvertController extends Controller
       ->findBy(array('advert' => $advert))
     ;
 
-    // Récupération des AdvertSkill de l'annonce
     $listAdvertSkills = $em
       ->getRepository('OCPlatformBundle:AdvertSkill')
       ->findBy(array('advert' => $advert))
@@ -457,24 +510,21 @@ class AdvertController extends Controller
     ;
 	
 		
-	// Récupération des AdvertSkill de l'annonce
     $comments = $em
       ->getRepository('OCPlatformBundle:Comment')
       ->findBy(array('title' => $metas->getSlug()))
     ;
 	
 	$advertid = new  Comment();
-    $form   = $this->get('form.factory')->create(CommentType::class, $advertid);
-	
+    $form   = $this->get('form.factory')->create(CommentType::class, $advertid);	
 
-    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+    if ($request->isMethod('POST') && $form->handleRequest($request)) {
       $em = $this->getDoctrine()->getManager();
-	  $advertid->setAdvertid($metas->getId());
-		
-	  // Le title fera lien entre l'article et le commentaire
-	  $advertid->setTitle($advert->getSlug());
-		
+	  $advertid->setAdvertid($re);
 	  $advertid->setAuthor($user);
+	  $advertid->setTitle($metas->getSlug());
+		
+		
 	
       $em->persist($advertid);
       $em->flush();
@@ -482,7 +532,7 @@ class AdvertController extends Controller
       $request->getSession()->getFlashBag()->add('notice', 'Commentaire envoyé.');
 	  return $this->redirect($request->getUri());
 
-    }
+    }    
 	
 
     return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
@@ -519,14 +569,14 @@ class AdvertController extends Controller
     ));
   }
 
-  public function editAction($id, Request $request)
+  public function editAction($slug, Request $request)
   {
     $em = $this->getDoctrine()->getManager();
 
-    $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+    $advert = $em->getRepository('OCPlatformBundle:Advert')->findOneBy(array('slug' => $slug));
 
     if (null === $advert) {
-      throw new NotFoundHttpException("L'annonce d'id ".$id." n'existe pas.");
+      throw new NotFoundHttpException("L'annonce d'id ".$slug." n'existe pas.");
     }
 
     $form = $this->get('form.factory')->create(AdvertEditType::class, $advert);
@@ -537,7 +587,7 @@ class AdvertController extends Controller
 
       $request->getSession()->getFlashBag()->add('notice', 'Annonce bien modifiée.');
 
-      return $this->redirectToRoute('oc_platform_view', array('id' => $advert->getId()));
+      return $this->redirectToRoute('oc_platform_view', array('slug' => $advert->getSlug()));
     }
 
     return $this->render('OCPlatformBundle:Advert:edit.html.twig', array(

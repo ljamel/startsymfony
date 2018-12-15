@@ -38,7 +38,6 @@ class AdvertType extends AbstractType
           return $repository->getLikeQueryBuilder($pattern);
         }
       ))
-      ->add('save',      SubmitType::class)
     ;
 
     // On ajoute une fonction qui va écouter un évènement
