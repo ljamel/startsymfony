@@ -17,7 +17,7 @@
         par {{ advert.author }},
         le {{ advert.date|date('d/m/Y') }}	 
       </li>
-	  <p>{{ advert.content | truncate(150) }}</p>
+	  <p>{{ advert.content | truncate(150) | raw }}</p>
     {% else %}
       <li>Pas (encore !) d'annonces</li>
     {% endfor %}

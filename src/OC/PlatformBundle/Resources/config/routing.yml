@@ -88,6 +88,11 @@ oc_platform_edituseractive:
     defaults:
         _controller: AppBundle:User:edituseractive
 
+oc_platform_registernew:
+    path:      /registernew/
+    defaults:
+        _controller: AppBundle:Registrationew:registernew
+
 oc_platform_alowuser:
     path:      /alowuser/{id}
     defaults:

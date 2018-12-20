@@ -55,6 +55,7 @@
     </div>
   {% endif %}
 
+{% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
   <p>
     <a href="{{ path('oc_platform_home') }}" class="btn btn-default">
       <i class="glyphicon glyphicon-chevron-left"></i>
@@ -69,6 +70,7 @@
       Supprimer l'annonce
     </a>
   </p>
+{% endif %}
 
 // mon commentaire est afficher en dessous penser a ajouter un lien
 {% for comment in comments %}

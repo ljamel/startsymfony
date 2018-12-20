@@ -28,7 +28,7 @@ td:hover {
     padding-top: 20px;
 }
 
-.row {
+.row.vertical-gap.user {
 	margin-left:0px!important;
 	margin-right:0px!important;
 }
@@ -47,6 +47,44 @@ td:hover {
 
 .nk-image-slider .nk-image-slider-thumbs ul {
 	display: none;
+}
+
+/* A utiliser pour la bacgkground image */
+.nk-page-background-top, .nk-page-background-bottom, .nk-page-background-fixed { 
+	display: none;
+}
+
+.banner {
+	height: 259px;
+    overflow: hidden;
+	background-image: url('http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/images/evolve_keyart_L_2.jpg');
+	background-size: cover;
+}
+
+.title-banner {
+	margin-left: 15%;
+}
+
+.chat {
+	width: 319px;
+}
+
+.margin-left {
+	margin-left: 20px;
+}
+
+.container {
+    max-width: 1028px;
+}
+
+.bio {
+	border: solid 1px #6c757d;
+    height: 405px;
+    padding: 11px;
+}
+
+.avatar {
+	width: 140px;
 }
 
 @media (max-width: 560px) {

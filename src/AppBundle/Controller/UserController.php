@@ -72,16 +72,14 @@ class UserController extends Controller
 		$form = $this->get('form.factory')->create(\AppBundle\Form\RegistrationType::class, $advert);
 
         $form->remove('roles');
-
+		
 		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 			$em->updateUser($advert);
-
 		}
 
         return $this->render('edituser.html.twig', array(
             'article' => $user->getId(),
             'edit_form' => $form->createView(),
-
         ));
 		
 	} 

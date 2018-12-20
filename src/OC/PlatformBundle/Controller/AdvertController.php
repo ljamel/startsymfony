@@ -63,13 +63,21 @@ class AdvertController extends Controller
       ->findOneBy(array(), array('id' => 'desc'))
     ;
 	  
+	$index = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Advert')
+      ->findOneBy(array('id' => 1), array('id' => 'desc'))
+    ;
+	  
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
       'listAdverts' => $listAdverts,
       'listAdvertSkills' => $listAdvertSkills,
       'nbPages'     => $nbPages,
       'page'        => $page,
-      'metatag'        => $metas,
+      'metatag'     => $metas,
+      'metatag'     => $metas,
+	  'index'		=> $index,
     ));
   }
 
@@ -212,7 +220,6 @@ class AdvertController extends Controller
       ->findBy(array('author' => $user), array('id' => 'desc'))
     ;
 	  
-	var_dump($metas);
 	  
 	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// ______
 	 
@@ -226,14 +233,17 @@ class AdvertController extends Controller
     $this->get('form.factory')->create(TeamType::class, $advertlink);
 
     if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+		
+	  // pour le lien entre le contenue est le groupe
       $em = $this->getDoctrine()->getManager();
 	  $advertlink->setUserid($user->getUsername());
 	  $advertlink->setGradesid('master');
 	  $advertlink->setFriendswaitingid(1);
 	  $advertlink->setAdvertid($random2);
 	  
-	  
+	  // contenue du groupe
 	  $teamc->setTeam($user);
+	  $teamc->setAuthor($user->getUsername());
 	  $teamc->setIsteam(true);
 	  $teamc->setSlug($random2);
       $em->persist($teamc);
@@ -251,6 +261,9 @@ class AdvertController extends Controller
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
 	  
+	
+    $linkwaitingsnb = ceil(count($linkwaitings));
+	  
 	// Le nombre d'amis
 	$nbfriends = ceil(count($friendsallow));
 
@@ -260,7 +273,7 @@ class AdvertController extends Controller
 	if(file_exists($image)) {
 		$gravatar = $image;
 	} else {
-		$gravatar = $profileAvatar->save('images/', $image);
+		$gravatar = $profileAvatar->save('', $image);
 	}
 	  
 	  
@@ -269,6 +282,7 @@ class AdvertController extends Controller
       'listAdverts' => $listAdverts,
       'links'       => $link,
       'linkwaitings'=> $linkwaitings,
+      'linkwaitingsnb'=> $linkwaitingsnb,
       'friendsallow'=> $friendsallow,
       'nbPages'     => $nbPages,
       'page'        => $page,
@@ -520,8 +534,8 @@ class AdvertController extends Controller
 
     if ($request->isMethod('POST') && $form->handleRequest($request)) {
       $em = $this->getDoctrine()->getManager();
-	  $advertid->setAdvertid($re);
-	  $advertid->setAuthor($user);
+	  $advertid->setAdvertid(3);
+	  $advertid->setAuthor('anonymous');
 	  $advertid->setTitle($metas->getSlug());
 		
 		
@@ -550,12 +564,44 @@ class AdvertController extends Controller
    */
   public function addAction(Request $request)
   {
+	$this->get('fos_user.user_manager');		
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
 
     $advert = new Advert();
     $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
 
     if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
       $em = $this->getDoctrine()->getManager();
+	  $advert->setAuthor($user->getUsername());
+      $em->persist($advert);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
+
+      return $this->redirectToRoute('oc_platform_view', array('slug' => $advert->getSlug()));
+    }
+
+    return $this->render('OCPlatformBundle:Advert:add.html.twig', array(
+      'form' => $form->createView(),
+    ));
+  }  
+	
+   /**
+   * @Security("has_role('ROLE_AUTEUR')")
+   */
+  public function bioAction(Request $request)
+  {
+	$this->get('fos_user.user_manager');		
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+
+    $advert = new Advert();
+    $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
+
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+      $em = $this->getDoctrine()->getManager();
+	  $advert->setAuthor($user->getUsername());
       $em->persist($advert);
       $em->flush();
 
@@ -569,8 +615,17 @@ class AdvertController extends Controller
     ));
   }
 
+    /**
+     * Displays a form to edit an existing Users.
+     * @Security("has_role('ROLE_MODERATEUR')")
+     */
   public function editAction($slug, Request $request)
   {
+	  
+	$this->get('fos_user.user_manager');		
+	// récupérer l'utilisateur courant. Pour donner l'autorisation d'edition q'a l'editeur de l'article
+	$user=$this->getUser();
+	  
     $em = $this->getDoctrine()->getManager();
 
     $advert = $em->getRepository('OCPlatformBundle:Advert')->findOneBy(array('slug' => $slug));
@@ -581,7 +636,10 @@ class AdvertController extends Controller
 
     $form = $this->get('form.factory')->create(AdvertEditType::class, $advert);
 
-    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+	$advert->getAuthor();
+	  
+	  
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid() && $user == $advert->getAuthor()) {
       // Inutile de persister ici, Doctrine connait déjà notre annonce
       $em->flush();
 

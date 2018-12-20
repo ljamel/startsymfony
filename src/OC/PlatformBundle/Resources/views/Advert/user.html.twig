@@ -8,31 +8,125 @@
 
 {% block ocplatform_body %}
 
-  <h2>Profile</h2>
 
-{{ user.username }}
-{{ user.email }}
-{{ user }}
+
+
+<div class="nk-teammate-card">
+                <div class="nk-teammate-card-photo bio">
+                     <h1>Biographie</h1>
+    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>
+    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>
+    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>
+
+
+	{% if teamview.title is defined %}
+	{{teamview.title}} teeam
+	{{teamview.content|raw}} teeam
+	{% else %}
+
+	<a href="{{ path('fos_user_group_new')}}"> Crée une team </a> 
+
+	<p>Ci dessous description de la team</p>
+	{{ include("OCPlatformBundle:Advert:form.html.twig") }}
+	{% endif %}
+
+
+                </div>
+
+                <div class="nk-teammate-card-info">
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <img class="avatar" src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/{{ profileAvatar }}" alt="">
+                            </td>
+                            <td>
+                                <table>
+                                    <tbody>
+                                    <tr>
+
+                                        <td><strong class="h5">Pseudo:</strong>&nbsp;&nbsp;&nbsp;</td>
+                                        <td><strong class="h5">{{ user.username }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="h5">Mail:</strong>&nbsp;&nbsp;&nbsp;</td>
+                                        <td><strong class="h5">{{ user.email }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong class="h5">Position:</strong>&nbsp;&nbsp;&nbsp;</td>
+                                        <td><strong class="h5">Mid</strong></td>
+                                    </tr>
+
+                                    </tbody>				
+                                </table>
+								<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> |  <a href="{{ path('fos_user_security_logout')}}">Déconnection</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong class="h3">520</strong>
+                            </td>
+                            <td>
+                                <strong class="h5">Points</strong>
+                                <div>#5 in World Championship</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong class="h3">8</strong>
+                            </td>
+                            <td>
+                                <strong class="h5">Trophées</strong>
+                                <div>#23 in World Championship</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong class="h3">{{ nbfriends }}</strong>
+                            </td>
+                            <td>
+                                <strong class="h5">Nombre d'amis</strong>
+                                <div>{{ linkwaitingsnb }}# Demandes en attente</div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+<p></p>
+<p></p>
+<h2></h2>
+<p></p>
+
+
 
 Amis
-{{ nbfriends }}
 {% for friends in friendsallow %}
-<br />
+<p></p>
 <a href="{{ path('oc_platform_finduser', {'find': friends.friendsid}) }}">lien</a>
 <a href="{{ path('oc_platform_postprivate', {'id': friends.friendsid}) }}">Envoyé un message</a>
+
 {% endfor %}
 <br />
+
 Invitation reçu en attente
 {% for linkwaiting in linkwaitings %}
 <br />
 <a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
-
 {% endfor %}
-<p>{{ path('oc_platform_home') }}</p>
-<img src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/{{ profileAvatar }}" >imageavatar
-<br />
-<br />
 
+
+<p></p>
 Messagerie interne ci-dessous
 {% for message in messages %}
 
@@ -43,12 +137,13 @@ titre
 {% endfor %}
 
 <br />
-<br />
-
-<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a>  
-<a href="{{ path('fos_user_change_password')}}"> modifier mon mot de pass</a>  
-
 <br /> 
+
+
+<a href="{{ path('fos_user_group_new')}}"> Crée une team </a> 
+<p>Ci dessous description de la team</p>
+{{ include("OCPlatformBundle:Advert:form.html.twig") }}
+
 
 {% if teamview.title is defined %}
 {{teamview.title}} teeam
