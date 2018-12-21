@@ -76,8 +76,45 @@ class AdvertController extends Controller
       'nbPages'     => $nbPages,
       'page'        => $page,
       'metatag'     => $metas,
-      'metatag'     => $metas,
 	  'index'		=> $index,
+    ));
+  }  
+	
+  public function pagegamerAction($page)
+  {
+	$title = $page;
+    $nbPerPage = 3;
+
+
+	// Récupération des AdvertSkill de l'annonce
+    $listAdvertSkills = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Category')
+      ->findAll()
+    ;	
+
+	  
+	$gamers = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Advert')
+      ->findBy(array('author' => $page), array('id' => 'desc'))
+    ;
+	  
+	
+    // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
+    $nbPages = ceil(count($gamers) / $nbPerPage);
+	 
+	
+    // Si la page n'existe pas, on retourne une 404
+    if ($page > $nbPages) {
+      throw $this->createNotFoundException("La page ".$page." n'existe pas.");
+    }
+	  
+    // On donne toutes les informations nécessaires à la vue
+    return $this->render('OCPlatformBundle:Advert:pagegamer.html.twig', array(
+      'listAdvertSkills' => $listAdvertSkills,
+      'nbPages'     => $nbPages,
+	  'gamers'		=> $gamers,
     ));
   }
 
@@ -185,13 +222,13 @@ class AdvertController extends Controller
 	
   public function userAction(Request $request, $user){
 	  
-	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
-	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
   	// Pour récupérer le service UserManager du bundle
 	$userManager = $this->get('fos_user.user_manager');
-	  	  
+	  	
+	$user=$userManager->finduserBy(array('username' => $user));
 	// récupérer l'utilisateur courant
-	$user=$this->getUser();
+	$useractive=$this->getUser($user);
 	$advert = $userManager->findUserBy(array('id' => $user->getId()));
 
     $nbPerPage = 3;
@@ -206,6 +243,8 @@ class AdvertController extends Controller
 	$linkwaitings = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendswaitingid' => 3));
 	
 	$teamview = $bdd->getRepository('OCPlatformBundle:Advert')->findOneBy(array('team' => $user->getUsername()));
+	  
+	$bioview = $bdd->getRepository('OCPlatformBundle:Advert')->findOneBy(array('slug' => $user->getUsername() . 'bio'));
 	  
 	if(empty($teamview)) {
 		$teamviewusers = 'ok';
@@ -232,7 +271,7 @@ class AdvertController extends Controller
     $form   = $this->get('form.factory')->create(AdvertType::class, $teamc);
     $this->get('form.factory')->create(TeamType::class, $advertlink);
 
-    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid() && $user == $useractive) {
 		
 	  // pour le lien entre le contenue est le groupe
       $em = $this->getDoctrine()->getManager();
@@ -294,7 +333,45 @@ class AdvertController extends Controller
 	  'teamview'    => $teamview,
 	  'teamviewusers' => $teamviewusers,
 	  'teamviewusersall' => $teamviewusersall,
-      
+      'bioview'        => $bioview,
+    ));
+  }
+	
+	
+  public function friendsAction($id) {
+  		  
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+  	// Pour récupérer le service UserManager du bundle
+	$userManager = $this->get('fos_user.user_manager');
+	  	  
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+	$advert = $userManager->findUserBy(array('id' => $user->getId()));
+	   
+	$bdd = $this->getDoctrine()->getManager();  
+	  
+	$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $id));  
+	$linkwaitings = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 3));
+	// Les amis déjà accepter, méthode multi critères
+	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
+	 
+	$avatar = new AvatarFactory();
+    $profileAvatar = $avatar->generate(new ProfileAvatar(140, 140)); 
+	$image = 'images/' . $user->getUsername() . 'avatar.jpg';
+	if(file_exists($image)) {
+		$gravatar = $image;
+	} else {
+		$gravatar = $profileAvatar->save('', $image);
+	}
+	  
+       // On donne toutes les informations nécessaires à la vue
+    return $this->render('OCPlatformBundle:Advert:friends.html.twig', array(
+      'links'       => $link,
+      'linkwaitings'=> $linkwaitings,
+      'friendsallow'=> $friendsallow,  
+      'profileAvatar'        => $gravatar,
+
     ));
   }
 
@@ -314,7 +391,10 @@ class AdvertController extends Controller
   }  
   
   public function deletecommentAction(Request $request, $id) {
-  		  
+  		
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+	  
     $em = $this->getDoctrine()->getManager();
 
     $advert = $em->getRepository('OCPlatformBundle:Comment')->find($id);
@@ -586,22 +666,26 @@ class AdvertController extends Controller
       'form' => $form->createView(),
     ));
   }  
-	
-   /**
-   * @Security("has_role('ROLE_AUTEUR')")
-   */
+
   public function bioAction(Request $request)
   {
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 	$this->get('fos_user.user_manager');		
 	// récupérer l'utilisateur courant
 	$user=$this->getUser();
 
     $advert = new Advert();
     $form   = $this->get('form.factory')->create(AdvertType::class, $advert);
+	$form->remove('categories');
+	$form->remove('title');
+	$form->remove('date');
 
     if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
       $em = $this->getDoctrine()->getManager();
 	  $advert->setAuthor($user->getUsername());
+	  $advert->setSlug($user->getUsername() . 'bio');
+	  $advert->setTitle($user->getUsername() . 'bio');
       $em->persist($advert);
       $em->flush();
 
@@ -614,11 +698,7 @@ class AdvertController extends Controller
       'form' => $form->createView(),
     ));
   }
-
-    /**
-     * Displays a form to edit an existing Users.
-     * @Security("has_role('ROLE_MODERATEUR')")
-     */
+	
   public function editAction($slug, Request $request)
   {
 	  
@@ -654,6 +734,9 @@ class AdvertController extends Controller
     ));
   }
 
+   /**
+   * @Security("has_role('ROLE_AUTEUR')")
+   */
   public function deleteAction(Request $request, $id)
   {
     $em = $this->getDoctrine()->getManager();
@@ -699,7 +782,7 @@ class AdvertController extends Controller
     ));
   }
 
-  // Méthode facultative pour tester la purge
+ /* // Méthode facultative pour tester la purge
   public function purgeAction($days, Request $request)
   {
     // On récupère notre service
@@ -714,4 +797,5 @@ class AdvertController extends Controller
     // On redirige vers la page d'accueil
     return $this->redirectToRoute('oc_platform_home');
   }
+  */
 }

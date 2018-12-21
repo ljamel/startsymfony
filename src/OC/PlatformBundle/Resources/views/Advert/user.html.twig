@@ -14,21 +14,23 @@
 <div class="nk-teammate-card">
                 <div class="nk-teammate-card-photo bio">
                      <h1>Biographie</h1>
-    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>
-    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>
-    <p> mon profile iubhfui e lhjb foyzvbreb lfghjgegfhber lgber lkvbreg bdf bgv egb:kj hb:sd f jbvf: bsdjkb g mfnbg mergn mret hgnrjm btgnmn </p>
+					
+					{% if bioview.title is defined %}
+					{{bioview.title}}
+					{{bioview.content|raw}}
+					
+						{% if app.user == user.username %}
+						<a href="{{ path('oc_platform_edit', {'slug': user.username ~ 'bio'}) }}" class="btn btn-default"> Modifier </a>
+						{% endif %}
+					
+					{% else %}
 
+						{% if app.user == user.username %}
+						<a href="{{ path('fos_user_group_new')}}"> Crée ma bio </a> 
+						{% endif %}
+					
+					{% endif %}
 
-	{% if teamview.title is defined %}
-	{{teamview.title}} teeam
-	{{teamview.content|raw}} teeam
-	{% else %}
-
-	<a href="{{ path('fos_user_group_new')}}"> Crée une team </a> 
-
-	<p>Ci dessous description de la team</p>
-	{{ include("OCPlatformBundle:Advert:form.html.twig") }}
-	{% endif %}
 
 
                 </div>
@@ -59,7 +61,12 @@
 
                                     </tbody>				
                                 </table>
-								<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> |  <a href="{{ path('fos_user_security_logout')}}">Déconnection</a>
+								{% if app.user == user.username %}
+									<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> |  <a href="{{ path('fos_user_security_logout')}}">Déconnection</a>
+								{% else %}
+									<a href="{{ path('oc_platform_postprivate', {'id': user.id}) }}">Envoyé un message</a> |
+									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a> 
+								{% endif %}
                             </td>
                         </tr>
                         <tr>
@@ -80,71 +87,76 @@
                                 <div>#23 in World Championship</div>
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                <strong class="h3">{{ nbfriends }}</strong>
-                            </td>
-                            <td>
-                                <strong class="h5">Nombre d'amis</strong>
-                                <div>{{ linkwaitingsnb }}# Demandes en attente</div>
-                            </td>
-                        </tr>
+							
+								<tr>
+									<td>
+										<a href="{{ path('oc_platform_friends', {'id': user.id}) }}"><strong class="h3">{{ nbfriends }}</strong></a>
+									</td>
+									<td>
+										<a href="{{ path('oc_platform_friends', {'id': user.id}) }}"><strong class="h5">Nombre d'amis</strong></a>
+										<div><a href="{{ path('oc_platform_friends', {'id': user.id}) }}">{{ linkwaitingsnb }}# Demandes en attente</a></div>
+									</td>
+								</tr>
+							
                         </tbody>
                     </table>
                 </div>
             </div>
 
 
-
-
-
-
-
-
-
-
-<p></p>
-<p></p>
 <h2></h2>
 <p></p>
 
 
+{% if app.user == user.username %}
 
-Amis
-{% for friends in friendsallow %}
-<p></p>
-<a href="{{ path('oc_platform_finduser', {'find': friends.friendsid}) }}">lien</a>
-<a href="{{ path('oc_platform_postprivate', {'id': friends.friendsid}) }}">Envoyé un message</a>
+<p>Messagerie interne ci-dessous</p>
 
-{% endfor %}
-<br />
+<div class="container">
+	<div class="row">
+		<div class="box-body no-padding">
 
-Invitation reçu en attente
-{% for linkwaiting in linkwaitings %}
-<br />
-<a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
-{% endfor %}
+			
+                  <hr>
+                  <div class="table-responsive mailbox-messages">
+                    <table class="table table-hover table-striped">
+                      <tbody>
 
+						  {% for message in messages %}
 
-<p></p>
-Messagerie interne ci-dessous
-{% for message in messages %}
+                        <tr>
+                          <td><input type="checkbox"></td>
+                          <td class="mailbox-star"><a href="#"><i class="fa fa-star-o text-yellow"></i></a></td>
+                          <td class="mailbox-name"><a href="read-mail.html">{{ message.author }}</a></td>
+                          <td class="mailbox-subject"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}"><b>{{ message.title }}</b> - {{ message.content|truncate(50) }}</a></td>
+                          <td class="mailbox-attachment"><i class="fa fa-paperclip"></i></td>
+                          <td class="mailbox-date">28 mins ago</td>
+                        </tr>
+						 
 
-titre 
-<h2>{{ message.title }}</h2><br />
+						
+						{% endfor %}
 
-<a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">Lire le message</a>
-{% endfor %}
+                      </tbody>
+                    </table><!-- /.table -->
+                  </div><!-- /.mail-box-messages -->
+                </div><!-- /.box-body -->
+                <hr>
+
+              </div><!-- /. box -->
+            </div><!-- /.col -->
+
 
 <br />
 <br /> 
 
 
-<a href="{{ path('fos_user_group_new')}}"> Crée une team </a> 
-<p>Ci dessous description de la team</p>
-{{ include("OCPlatformBundle:Advert:form.html.twig") }}
 
+<a href="{{path('oc_platform_add')}}"> Ajouter une annonces </a>
 
+{% endif %}
+
+<!--
 {% if teamview.title is defined %}
 {{teamview.title}} teeam
 {{teamview.content}} teeam
@@ -161,13 +173,23 @@ titre
 {% for user in teamviewusers %}
 {{user.userid}} menbre du groupe
 {% endfor %}
+-->
 
+
+
+
+
+<!--
 <p>Affiches tous les groupes (teams)</p>
 
 {% for user in teamviewusersall %}
-<p>{{user.id}} menbre du groupe</p>
-<p>{{user.title}} menbre du groupe</p>
-<p>{{user.content}} menbre du groupe</p>
+<p>{{user.id}} menbre du groupe
+{{user.title}} menbre du groupe
+{{user.content}} menbre du groupe</p>
 {% endfor %}
 
+
+-->
+
 {% endblock %}
+

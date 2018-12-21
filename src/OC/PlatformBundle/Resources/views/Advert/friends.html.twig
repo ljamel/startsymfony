@@ -1,0 +1,24 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/add.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block body %}
+
+
+Amis
+{% for friends in friendsallow %}
+<p></p>
+<a href="{{ path('oc_platform_finduser', {'find': friends.friendsid}) }}">lien</a>
+
+
+{% endfor %}
+<br />
+
+Invitation reçu en attente
+{% for linkwaiting in linkwaitings %}
+<br />
+<a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
+{% endfor %}
+
+
+{% endblock %}

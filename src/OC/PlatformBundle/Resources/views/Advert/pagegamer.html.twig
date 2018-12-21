@@ -1,0 +1,21 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/add.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block body %}
+
+  
+{% for gamer in gamers %}
+
+<h2>{{ gamer.title }}</h2>
+<p>{{ gamer.content|raw }}</p>
+{{ gamer.date|date('d/m/Y') }}<br />
+
+<hr>
+
+{% endfor %}
+
+  <p>
+  </p>
+
+{% endblock %}

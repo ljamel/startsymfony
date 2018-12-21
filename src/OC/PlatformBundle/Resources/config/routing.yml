@@ -21,6 +21,16 @@ oc_platform_admin:
     defaults:
         _controller: OCPlatformBundle:Advert:admin
 
+oc_platform_bio:
+    path:      /bio/
+    defaults:
+        _controller: OCPlatformBundle:Advert:bio
+
+oc_platform_friends:
+    path:      /friends/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:friends
+
 oc_platform_user:
     path:      /user/{user}
     defaults:
@@ -58,6 +68,11 @@ oc_platform_cat:
     path:      /category/{name}
     defaults:
         _controller: OCPlatformBundle:Advert:category
+
+oc_platform_pagegamer:
+    path:      /pagegamer/{page}
+    defaults:
+        _controller: OCPlatformBundle:Advert:pagegamer
 
 oc_platform_add:
     path:      /add
