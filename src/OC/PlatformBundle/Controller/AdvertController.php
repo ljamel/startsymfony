@@ -25,7 +25,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Dwr\AvatarBundle\Model\AvatarFactory;
 use Dwr\AvatarBundle\Model\PlainAvatar;
 use Dwr\AvatarBundle\Model\ProfileAvatar;
-
+use AppBundle\Entity\User;
 
 class AdvertController extends Controller
 {
@@ -245,6 +245,15 @@ class AdvertController extends Controller
 	$teamview = $bdd->getRepository('OCPlatformBundle:Advert')->findOneBy(array('team' => $user->getUsername()));
 	  
 	$bioview = $bdd->getRepository('OCPlatformBundle:Advert')->findOneBy(array('slug' => $user->getUsername() . 'bio'));
+ 
+	// Les amis déjà accepter, méthode multi critères utiliser if empty
+	// Les amis déjà accepter, méthode multi critères utiliser if empty
+	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
+	  
+	if(empty($friendsallow)) {
+		$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendsid' => $user->getId(), 'friendswaitingid' => 1));
+	}
+	  
 	  
 	if(empty($teamview)) {
 		$teamviewusers = 'ok';
@@ -260,7 +269,7 @@ class AdvertController extends Controller
     ;
 	  
 	  
-	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId()));// ______
+	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getUsername()));// ______
 	 
 	// Servira de lien entre le groupe et l'article
 	$random = random_bytes(15);
@@ -293,10 +302,6 @@ class AdvertController extends Controller
 	  return $this->redirect($request->getUri());
     }
 
-	  
-	// Les amis déjà accepter, méthode multi critères
-	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
-	  
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($listAdverts) / $nbPerPage);
 	  
@@ -347,30 +352,41 @@ class AdvertController extends Controller
 	  	  
 	// récupérer l'utilisateur courant
 	$user=$this->getUser();
-	$advert = $userManager->findUserBy(array('id' => $user->getId()));
+	$advert = $userManager->findUserBy(array('id' => $id));
 	   
 	$bdd = $this->getDoctrine()->getManager();  
 	  
 	$link = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $id));  
 	$linkwaitings = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 3));
 	// Les amis déjà accepter, méthode multi critères
-	$friendsallow = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $user->getId(), 'friendswaitingid' => 1));
-	 
-	$avatar = new AvatarFactory();
-    $profileAvatar = $avatar->generate(new ProfileAvatar(140, 140)); 
-	$image = 'images/' . $user->getUsername() . 'avatar.jpg';
-	if(file_exists($image)) {
-		$gravatar = $image;
-	} else {
-		$gravatar = $profileAvatar->save('', $image);
-	}
+	$friendsallows = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('userid' => $id, 'friendswaitingid' => 1));
 	  
-       // On donne toutes les informations nécessaires à la vue
+	// Pour afficher la liste de tous les amis  
+	if(empty($friendsallows)) {
+		$friendsallows = $bdd->getRepository('OCPlatformBundle:Friends')->findBy(array('friendsid' => $id, 'friendswaitingid' => 1));
+		$friendsallowss = array();
+		foreach ($friendsallows as $friendsallow) {
+		  $friendsallow->getUserid();
+		  $viewuser = $userManager->findUserBy(array('id' => $friendsallow->getUserid()));	
+		  array_push($friendsallowss, $viewuser);
+
+		}	
+	} else {
+		$friendsallowss = array();
+		foreach ($friendsallows as $friendsallow) {
+		   $friendsallow->getUserid();
+		   $viewuser = $userManager->findUserBy(array('id' => $friendsallow->getFriendsid()));	
+		   array_push($friendsallowss, $viewuser);
+		  
+		}
+	}
+  
+	  
+    // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:friends.html.twig', array(
       'links'       => $link,
       'linkwaitings'=> $linkwaitings,
-      'friendsallow'=> $friendsallow,  
-      'profileAvatar'        => $gravatar,
+      'friendsallows'=> $friendsallowss,  
 
     ));
   }
@@ -448,7 +464,7 @@ class AdvertController extends Controller
 	
   public function finduserAction($find, Request $request) {
 	  
-	// Pour récupérer le service UserManager du bundle ENFIN çA FONCTIONNE LA RECHERCHE
+	// Pour récupérer le service UserManager du bundle 
 	$userManager = $this->get('fos_user.user_manager');
 	  	  
 	  $user = $userManager->findUserBy(
@@ -457,17 +473,14 @@ class AdvertController extends Controller
 	    50,                       // Limite
 	    0                         // debut
 	  );
-
 	  
 	  if(empty($user)){ 
-		 // On ajoute un message flash arbitraire
+	    // On ajoute un message flash arbitraire
 		$request->getSession()->getFlashBag()->add('info', 'Aucun utilisateur trouvé');
 	  	return $this->redirectToRoute('oc_platform_home', array());
 	  }
 	  
-	return $this->render('OCPlatformBundle:Advert:searchinguser.html.twig', array(
-      'user'        => $user,
-    ));
+	  return $this->redirectToRoute('oc_platform_user', array('user' => $user->getUsername()));
   }
 
 	
@@ -522,7 +535,7 @@ class AdvertController extends Controller
 	$bdd = $this->getDoctrine()->getManager();
 	  
 	// ajouter des critèrs de séléctions pour la sécurité et afficher un message a la fois
-	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getId(), 'id' => $id));
+	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getUsername(), 'id' => $id));
 	  
     $nbPages = ceil(count($messages) / $nbPerPage);
 	  
@@ -546,9 +559,6 @@ class AdvertController extends Controller
 	// récupérer l'utilisateur courant
 	$user=$this->getUser();
 
-	echo $user->getId();
-	echo $id;
-	echo 'ohniobj';
 	
 	// changer l'entiter advert pour envoyer dans la bonne table
 	$advert = new Messages();
@@ -559,7 +569,7 @@ class AdvertController extends Controller
 
     if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 	  $advert->setUserreceived($id);
-	  $advert->setAuthor($user->getId());
+	  $advert->setAuthor($user->getUsername());
       $em = $this->getDoctrine()->getManager();
       $em->persist($advert);
       $em->flush();

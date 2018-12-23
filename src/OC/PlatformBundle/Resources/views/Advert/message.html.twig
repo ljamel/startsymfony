@@ -4,7 +4,7 @@
 
 {% block body %}
 
-  <h2>Envoyer un messagedffgegfe</h2>
+  <h2>Envoyer un message</h2>
    {% if app.session.flashBag.has('info') %}
         <div class="alert alert-info">
             {% for msg in app.session.flashBag.get('info') %}
@@ -15,9 +15,6 @@
 
   {{ include("OCPlatformBundle:Advert:form.html.twig") }}
 
-  <p>
-    Attention : cette annonce sera ajoutée directement
-    sur la page d'accueil après validation du formulaire.
-  </p>
+ 
 
 {% endblock %}

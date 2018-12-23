@@ -39,6 +39,7 @@ class UserController extends Controller
 		
 		$form = $this->get('form.factory')->create(\AppBundle\Form\RegistrationType::class, $advert);
 
+		$form->remove('plainPassword');
 
 		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 			$em->updateUser($advert);
@@ -106,6 +107,7 @@ class UserController extends Controller
 		
 		$form = $this->get('form.factory')->create(\AppBundle\Form\RegistrationType::class, $advert);
 
+		
 		if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 			$em->updateUser($advert);
 

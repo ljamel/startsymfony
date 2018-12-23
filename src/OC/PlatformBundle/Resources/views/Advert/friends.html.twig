@@ -6,18 +6,23 @@
 
 
 Amis
-{% for friends in friendsallow %}
-<p></p>
-<a href="{{ path('oc_platform_finduser', {'find': friends.friendsid}) }}">lien</a>
 
+{% for friendsallow in friendsallows %}
+
+<p>
+<a href="{{ path('oc_platform_user', {'user': friendsallow.username}) }}">{{friendsallow.username}}</a>
+</p>
 
 {% endfor %}
+
+
 <br />
 
 Invitation reçu en attente
 {% for linkwaiting in linkwaitings %}
-<br />
-<a href="{{ path('oc_platform_alowuser', {'id': linkwaiting.friendsid}) }}"> accepter {{ linkwaiting.friendsid }}</a><br />
+
+<p><a href="{{ path('oc_platform_user', {'user': friendsallow.username}) }}">{{friendsallow.username}}</a></p>
+
 {% endfor %}
 
 

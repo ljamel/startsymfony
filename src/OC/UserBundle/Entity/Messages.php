@@ -37,7 +37,7 @@ class Messages
   /**
    * @var int
    *
-   * @ORM\Column(name="userreceived", type="integer")
+   * @ORM\Column(name="userreceived", type="string", length=255)
    */
   private $userreceived;
 

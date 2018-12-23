@@ -13,7 +13,7 @@
 
 <div class="nk-teammate-card">
                 <div class="nk-teammate-card-photo bio">
-                     <h1>Biographie</h1>
+                    <h1>Biographie</h1>
 					
 					{% if bioview.title is defined %}
 					{{bioview.title}}
@@ -65,8 +65,14 @@
 									<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> |  <a href="{{ path('fos_user_security_logout')}}">Déconnection</a>
 								{% else %}
 									<a href="{{ path('oc_platform_postprivate', {'id': user.id}) }}">Envoyé un message</a> |
-									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a> 
+									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a> <br/>
 								{% endif %}
+								
+									{% if friendsallow == false %}
+										<a href="{{ path('oc_platform_addfriend', {'id': user.id}) }}"> Demande d'amis </a>
+									{% else %}
+									{% endif %}
+
                             </td>
                         </tr>
                         <tr>
@@ -122,19 +128,16 @@
                     <table class="table table-hover table-striped">
                       <tbody>
 
-						  {% for message in messages %}
+						<!-- donner la possibliter de pouvoir supprimer les messages -->
+						{% for message in messages %}
 
-                        <tr>
-                          <td><input type="checkbox"></td>
-                          <td class="mailbox-star"><a href="#"><i class="fa fa-star-o text-yellow"></i></a></td>
-                          <td class="mailbox-name"><a href="read-mail.html">{{ message.author }}</a></td>
-                          <td class="mailbox-subject"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}"><b>{{ message.title }}</b> - {{ message.content|truncate(50) }}</a></td>
-                          <td class="mailbox-attachment"><i class="fa fa-paperclip"></i></td>
-                          <td class="mailbox-date">28 mins ago</td>
-                        </tr>
-						 
-
-						
+							<tr>
+							  <td><input type="checkbox"></td>
+							  <td class="mailbox-name"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">{{ message.author }}</a></td>
+							  <td class="mailbox-subject"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}"><b>{{ message.title }}</b> - {{ message.content|truncate(50)|raw }}</a></td>
+							  <td class="mailbox-date">{{ message.date|date('d/m/Y') }}</td>
+							</tr>
+				
 						{% endfor %}
 
                       </tbody>
