@@ -180,7 +180,7 @@ class AdvertController extends Controller
    /**
    * @Security("has_role('ROLE_ADMIN')")
    */
-  public function adminAction()
+  public function adminAction($page)
   {
     // verifi si le visiteur est connecter sinon sa renvoi à la page /login
 	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
@@ -191,13 +191,12 @@ class AdvertController extends Controller
     $users = $userManager->findUsers();
 
 
-    $nbPerPage = 3;
-    $page = 1;
+    $nbPerPage = 6; // la pagination fonctionne---------------------------èàç-rè"'-('ç"_è(-àé"'àç__çèàç-_ç))
 
     $listAdverts = $this->getDoctrine()
       ->getManager()
       ->getRepository('OCPlatformBundle:Advert')
-      ->getAdverts(1, $nbPerPage)
+      ->getAdverts($page, $nbPerPage)
     ;
 	  
     // Récupération des AdvertSkill de l'annonce
@@ -217,6 +216,42 @@ class AdvertController extends Controller
       'page'        => $page,
       'users'       => $users,
 	  'comments'    => $comments, 
+    ));
+  }  
+	
+  public function alluserAction($page, $p)
+  {
+    // verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+	// Pour récupérer le service UserManager du bundle
+	$userManager = $this->get('fos_user.user_manager');
+
+    $nbPerPage = 3; // la pagination fonctionne---------------------------èàç-rè"'-('ç"_è(-àé"'àç__çèàç-_ç))
+	// Pour récupérer la liste de tous les utilisateurs
+    $countuser = $userManager->findUsers();
+  
+    // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
+    $nbPages = ceil(count($countuser) / $nbPerPage);
+	  
+	// Pour récupérer la liste de tous les utilisateurs
+    $users = $userManager->findUsers(
+	    array('enabled' => 1), // Critere
+	    array('id' => 'desc'),  // Tri
+	    $nbPerPage,   // Limite
+	    $p          // debut
+	  );
+
+	  $userss = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OC\UserBundle\Entity\User')
+      ->getUsers($page, $nbPerPage)
+    ;
+
+    // On donne toutes les informations nécessaires à la vue
+    return $this->render('OCPlatformBundle:Advert:alluser.html.twig', array(
+      'nbPages'     => $nbPages,
+      'page'        => $page,
+      'users'       => $userss,
     ));
   }
 	
@@ -269,7 +304,9 @@ class AdvertController extends Controller
     ;
 	  
 	  
-	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getUsername()));// ______
+	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getUsername()));
+	  
+	$messagesend = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('author' => $user->getUsername()));
 	 
 	// Servira de lien entre le groupe et l'article
 	$random = random_bytes(15);
@@ -333,6 +370,7 @@ class AdvertController extends Controller
       'user'        => $advert,
       'nbfriends'   => $nbfriends,
 	  'messages'	=> $messages,
+	  'messagesends'	=> $messagesend,
       'profileAvatar'        => $gravatar,
 	  'form' 		=> $form->createView(),
 	  'teamview'    => $teamview,
@@ -427,6 +465,33 @@ class AdvertController extends Controller
     }
 	  
 	return $this->redirectToRoute('oc_platform_admin', array());
+  }  
+	
+  public function deletemessageAction(Request $request, $id) {
+  		
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+	  
+	$userManager = $this->get('fos_user.user_manager');
+	  	  
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+    $em = $this->getDoctrine()->getManager();
+
+    $advert = $em->getRepository('OC\UserBundle\Entity\Messages')->find($id);
+
+    if (null === $advert) {
+      throw new NotFoundHttpException("Le message d'id ".$id." n'existe pas.");
+    }else {
+      $em->remove($advert);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('info', "Le message a bien été supprimé.");
+
+      return $this->redirectToRoute('oc_platform_user', array('user' => $user->getUsername()));
+    }
+	  
+	  return $this->redirectToRoute('oc_platform_user', array('user' => $user->getUsername()));
   }
   
   public function searchinguserAction(Request $request) {
@@ -569,7 +634,7 @@ class AdvertController extends Controller
 
     if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
 	  $advert->setUserreceived($id);
-	  $advert->setAuthor($user->getUsername());
+	  $advert->setAuthor($this->getUser());
       $em = $this->getDoctrine()->getManager();
       $em->persist($advert);
       $em->flush();
@@ -584,8 +649,7 @@ class AdvertController extends Controller
     return $this->render('OCPlatformBundle:Advert:message.html.twig', array(
       'form' => $form->createView(),
     ));
-	  
-	  
+  
   }
 	
   public function viewAction(Advert $advert, Request $request)
@@ -707,7 +771,7 @@ class AdvertController extends Controller
     return $this->render('OCPlatformBundle:Advert:add.html.twig', array(
       'form' => $form->createView(),
     ));
-  }
+  }  
 	
   public function editAction($slug, Request $request)
   {

@@ -5,15 +5,16 @@
 {% block body %}
 
 
-Amis
-
+<p>Amis</p>
+<div>
 {% for friendsallow in friendsallows %}
 
-<p>
-<a href="{{ path('oc_platform_user', {'user': friendsallow.username}) }}">{{friendsallow.username}}</a>
-</p>
+<div class="nk-blog-post-border-bottom">
+	<h3><a href="{{ path('oc_platform_user', {'user': friendsallow.username}) }}"> <img class="avatarliste" src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/images/{{friendsallow.username}}avatar.jpg" alt="{{friendsallow.username}}"> {{friendsallow.username}} </a> </h3>
+</div>
 
 {% endfor %}
+</div>
 
 
 <br />
@@ -21,7 +22,7 @@ Amis
 Invitation reçu en attente
 {% for linkwaiting in linkwaitings %}
 
-<p><a href="{{ path('oc_platform_user', {'user': friendsallow.username}) }}">{{friendsallow.username}}</a></p>
+<p class="nk-blog-post-border-bottom"><a href="{{ path('oc_platform_user', {'user': friendsallow.username}) }}"> {{friendsallow.username}}</a></p>
 
 {% endfor %}
 

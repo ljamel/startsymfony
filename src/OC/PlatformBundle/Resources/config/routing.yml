@@ -15,11 +15,24 @@ oc_platform_comment:
         page:        1
     requirements:
         id: \d+
-
+# Jai resssui à faire fonctionner la pagination
 oc_platform_admin:
-    path:      /admin/
+    path:      /admin/{page}
     defaults:
         _controller: OCPlatformBundle:Advert:admin
+        page:        1
+    requirements:
+        id: \d+
+
+# Jai resssui à faire fonctionner la pagination
+oc_platform_alluser:
+    path:      /alluser/{page}{p}
+    defaults:
+        _controller: OCPlatformBundle:Advert:alluser
+        page:        1
+        p:        1
+    requirements:
+        id: \d+
 
 oc_platform_bio:
     path:      /bio/
@@ -57,6 +70,12 @@ oc_platform_deletecomment:
     path:      /deletecomment/{id}
     defaults:
         _controller: OCPlatformBundle:Advert:deletecomment
+        user:        1888888888888888888888888888
+
+oc_platform_deletemessage:
+    path:      /deletemessage/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:deletemessage
         user:        1888888888888888888888888888
 
 oc_platform_view:

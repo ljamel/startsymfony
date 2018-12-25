@@ -1,0 +1,28 @@
+{# src/OC/PlatformBundle/Resources/view/Advert/view.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block title %}
+  Lecture d'une annonce - {{ parent() }}
+{% endblock %}
+
+{% block ocplatform_body %}
+
+
+{% for user in users %}
+
+
+<div class="nk-blog-post-border-bottom">
+	<h3><a href="{{ path('oc_platform_user', {'user': user.username}) }}"> <img class="avatarliste" src="{{ app.request.uri }}/../../images/{{user.username }}avatar.jpg" alt="{{user.username }}"> {{user.username }} </a> </h3>
+</div>
+					
+{% endfor %}
+
+		<ul class="pagination">
+			{# On utilise la fonction range(a, b) qui crée un tableau de valeurs entre a et b #} {% for p in range(1, nbPages) %}
+			<li{% if p==page %} class="active" {% endif %}>
+				<a href="{{ path('oc_platform_alluser', {'page': p}) }}">{{ p }}</a>
+			</li>
+			{% endfor %}
+		</ul>
+{% endblock %}

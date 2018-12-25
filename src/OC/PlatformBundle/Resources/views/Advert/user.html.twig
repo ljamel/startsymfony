@@ -40,7 +40,7 @@
                         <tbody>
                         <tr>
                             <td>
-                                <img class="avatar" src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/{{ profileAvatar }}" alt="">
+                                <img class="avatar" src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/{{ profileAvatar }}" alt="{{user.username}}">
                             </td>
                             <td>
                                 <table>
@@ -62,10 +62,11 @@
                                     </tbody>				
                                 </table>
 								{% if app.user == user.username %}
-									<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> |  <a href="{{ path('fos_user_security_logout')}}">Déconnection</a>
+									<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> | <a href="{{path('oc_platform_add')}}"> Poster une actualité </a>
 								{% else %}
-									<a href="{{ path('oc_platform_postprivate', {'id': user.id}) }}">Envoyé un message</a> |
-									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a> <br/>
+									<a href="{{ path('oc_platform_postprivate', {'id': user.username}) }}">Envoyé un message</a> |
+									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a>
+								<br/>
 								{% endif %}
 								
 									{% if friendsallow == false %}
@@ -109,33 +110,53 @@
                 </div>
             </div>
 
-
-<h2></h2>
 <p></p>
 
 
 {% if app.user == user.username %}
 
 <p>Messagerie interne ci-dessous</p>
-
+<p>Liste des messages reçus</p>
 <div class="container">
 	<div class="row">
-		<div class="box-body no-padding">
-
-			
+		<div class="box-body no-padding">	
                   <hr>
                   <div class="table-responsive mailbox-messages">
                     <table class="table table-hover table-striped">
                       <tbody>
-
 						<!-- donner la possibliter de pouvoir supprimer les messages -->
 						{% for message in messages %}
 
 							<tr>
-							  <td><input type="checkbox"></td>
-							  <td class="mailbox-name"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">{{ message.author }}</a></td>
-							  <td class="mailbox-subject"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}"><b>{{ message.title }}</b> - {{ message.content|truncate(50)|raw }}</a></td>
+							  <td>									
+								   <div class="modal fade" id="userDialog{{ message.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+													<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+												</div>
+												<div class="modal-body">
+													Voulez vous vraiment Effacer
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+													<a href="{{ path('oc_platform_deletemessage', { 'id': message.id })  }}" class="btn btn-danger">Confirm</a>
+												</div>
+											</div>
+											<!-- /.modal-content -->
+										</div>
+										<!-- /.modal-dialog -->
+									</div>
+									<!-- /.modal -->									
+								</td>
+							  <td class="mailbox-name">	
+								  <a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">{{ message.author }}</a>  
+							  </td>
+							  <td class="mailbox-subject"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}"><b>Sujet : {{ message.title }}</b>  {{ message.content|truncate(50)|raw }}</a></td>
 							  <td class="mailbox-date">{{ message.date|date('d/m/Y') }}</td>
+							  <td><button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#userDialog{{ message.id }}"><span class="glyphicon glyphicon-remove"> Effacer</span>
+							  </button></td>
 							</tr>
 				
 						{% endfor %}
@@ -155,7 +176,68 @@
 
 
 
-<a href="{{path('oc_platform_add')}}"> Ajouter une annonces </a>
+<p>Messagerie interne ci-dessous</p>
+<p>Liste des messages envoyés</p>
+<div class="container">
+	<div class="row">
+		<div class="box-body no-padding">	
+                  <hr>
+                  <div class="table-responsive mailbox-messages">
+                    <table class="table table-hover table-striped">
+                      <tbody>
+						<!-- donner la possibliter de pouvoir supprimer les messages -->
+						{% for message in messagesends %}
+
+							<tr>
+							  <td>									
+								   <div class="modal fade" id="userDialog{{ message.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+													<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+												</div>
+												<div class="modal-body">
+													Voulez vous vraiment Effacer
+												</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+													<a href="{{ path('oc_platform_deletemessage', { 'id': message.id })  }}" class="btn btn-danger">Confirm</a>
+												</div>
+											</div>
+											<!-- /.modal-content -->
+										</div>
+										<!-- /.modal-dialog -->
+									</div>
+									<!-- /.modal -->									
+								</td>
+							  <td class="mailbox-name">	
+								  <a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}">{{ message.userreceived }}</a>  
+							  </td>
+							  <td class="mailbox-subject"><a href="{{ path('oc_platform_messagebox', {'id': message.id}) }}"><b>Sujet : {{ message.title }}</b>  {{ message.content|truncate(50)|raw }}</a></td>
+							  <td class="mailbox-date">{{ message.date|date('d/m/Y') }}</td>
+							  <td><button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#userDialog{{ message.id }}"><span class="glyphicon glyphicon-remove"> Effacer</span>
+							  </button></td>
+							</tr>
+				
+						{% endfor %}
+
+                      </tbody>
+                    </table><!-- /.table -->
+                  </div><!-- /.mail-box-messages -->
+                </div><!-- /.box-body -->
+                <hr>
+
+              </div><!-- /. box -->
+            </div><!-- /.col -->
+
+
+<br />
+<br /> 
+
+<a href="{{ path('fos_user_security_logout')}}">Déconnection</a>
+
+
 
 {% endif %}
 

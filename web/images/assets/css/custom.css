@@ -17,7 +17,7 @@
 .table thead th, .table td, .table th {
     border-color: #1e1e1e!important;
 	text-align: center;
-	cursor: crosshair;
+	cursor: pointer;
 }
 
 td:hover {
@@ -89,6 +89,10 @@ td:hover {
 
 .avatar {
 	width: 140px;
+}
+
+.avatarliste {
+	width: 50px;
 }
 
 @media (max-width: 560px) {
