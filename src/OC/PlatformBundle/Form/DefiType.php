@@ -17,7 +17,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 
-class CommentType extends AbstractType
+class DefiType extends AbstractType
 {
   public function buildForm(FormBuilderInterface $builder, array $options)
   {
@@ -25,6 +25,7 @@ $pattern = '%';
 
     $builder
       ->add('date',      DateTimeType::class)
+	  ->add('title',   TextType::class)
 	  ->add('content',   TextareaType::class)
 
     ;

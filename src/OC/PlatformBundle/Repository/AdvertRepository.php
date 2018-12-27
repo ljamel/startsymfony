@@ -9,6 +9,14 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class AdvertRepository extends EntityRepository
 {
+  public function getDefis($date) {
+  	    return $this->createQueryBuilder('a')
+      ->where('a.date >= :date') // Date antérieur à :date
+	  ->setParameter('date', $date)
+      ->getQuery()
+      ->getResult()
+      ;
+  }
   public function getAdvertsBefore(\Datetime $date)
   {
     return $this->createQueryBuilder('a')

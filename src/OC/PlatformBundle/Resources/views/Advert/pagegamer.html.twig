@@ -6,16 +6,23 @@
 
   
 {% for gamer in gamers %}
-
-<h2>{{ gamer.title }}</h2>
-<p>{{ gamer.content|raw }}</p>
-{{ gamer.date|date('d/m/Y') }}<br />
-
-<hr>
-
+<div>
+	<h2>{{ gamer.title }}</h2>
+	<p>{{ gamer.content|raw }}</p>
+	<p>Le {{ gamer.date|date('d/m/Y') }}</p>
+</div>
+<p class="nk-decorated-h-2"></p>
 {% endfor %}
 
-  <p>
-  </p>
+
+<div class="nk-pagination nk-pagination-center">
+	<nav>
+		{% for p in range(1, nbPages) %} {% if p==current %}
+		<p class="nk-pagination-current">{{ p }}</p>
+		{% else %}
+		<a href="{{ path('oc_platform_pagegamer', {'page': page}) }}/{{p}}">{{ p }}</a>
+		{% endif %} {% endfor %}
+	</nav>
+</div>
 
 {% endblock %}

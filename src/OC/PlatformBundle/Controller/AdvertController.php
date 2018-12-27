@@ -17,6 +17,7 @@ use OC\PlatformBundle\Form\AdvertType;
 use OC\PlatformBundle\Form\CkeditorType;
 use OC\PlatformBundle\Form\MessageType;
 use OC\PlatformBundle\Form\TeamType;
+use OC\PlatformBundle\Form\DefiType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +69,30 @@ class AdvertController extends Controller
       ->getRepository('OCPlatformBundle:Advert')
       ->findOneBy(array('id' => 1), array('id' => 'desc'))
     ;
+
+	$time = date('Y-m-d H:i:s');
+  
+	// La liste des défis a venir 
+	$defis = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OC\UserBundle\Entity\Messages')
+      ->getDefis($time)
+    ;
 	  
+	$wait = array();
+	foreach ($defis as $defi) {
+		// permet de calculer la difference de date
+		$now = new \DateTime(); 
+		$after= $defi->getDate();
+		$now->diff($after, true)->i;
+		$now->diff($after, true)->s;
+		
+		$showtime = $now->diff($after, true)->i . ' : ' . $now->diff($after, true)->s;
+		
+		$defi->setDate($showtime);
+	}
+	  
+
     // On donne toutes les informations nécessaires à la vue
     return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
       'listAdverts' => $listAdverts,
@@ -77,14 +101,16 @@ class AdvertController extends Controller
       'page'        => $page,
       'metatag'     => $metas,
 	  'index'		=> $index,
+	  'defis'		=> $defis,
+	  'wait'		=> $wait,
     ));
   }  
 	
-  public function pagegamerAction($page)
+  public function pagegamerAction($page, $p)
   {
 	$title = $page;
     $nbPerPage = 3;
-
+	$current = $p;
 
 	// Récupération des AdvertSkill de l'annonce
     $listAdvertSkills = $this->getDoctrine()
@@ -92,19 +118,23 @@ class AdvertController extends Controller
       ->getRepository('OCPlatformBundle:Category')
       ->findAll()
     ;	
-
+	  	  
+	$gamersc = $this->getDoctrine()
+      ->getManager()
+      ->getRepository('OCPlatformBundle:Advert')
+      ->findBy(array('author' => $page), array('id' => 'desc'))
+	  
+    ;
+    // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
+    $nbPages = ceil(count($gamersc) / $nbPerPage);
 	  
 	$gamers = $this->getDoctrine()
       ->getManager()
       ->getRepository('OCPlatformBundle:Advert')
-      ->findBy(array('author' => $page), array('id' => 'desc'))
-    ;
+      ->findBy(array('author' => $page), array('id' => 'desc'),$nbPages, $p)
 	  
-	
-    // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
-    $nbPages = ceil(count($gamers) / $nbPerPage);
-	 
-	
+    ;
+ 	
     // Si la page n'existe pas, on retourne une 404
     if ($page > $nbPages) {
       throw $this->createNotFoundException("La page ".$page." n'existe pas.");
@@ -114,7 +144,9 @@ class AdvertController extends Controller
     return $this->render('OCPlatformBundle:Advert:pagegamer.html.twig', array(
       'listAdvertSkills' => $listAdvertSkills,
       'nbPages'     => $nbPages,
+      'page'     => $page,
 	  'gamers'		=> $gamers,
+	  'current'		=> $current,
     ));
   }
 
@@ -226,22 +258,15 @@ class AdvertController extends Controller
 	// Pour récupérer le service UserManager du bundle
 	$userManager = $this->get('fos_user.user_manager');
 
-    $nbPerPage = 3; // la pagination fonctionne---------------------------èàç-rè"'-('ç"_è(-àé"'àç__çèàç-_ç))
+    $nbPerPage = 6; // la pagination fonctionne---------------------------èàç-rè"'-('ç"_è(-àé"'àç__çèàç-_ç))
 	// Pour récupérer la liste de tous les utilisateurs
     $countuser = $userManager->findUsers();
   
     // On calcule le nombre total de pages grâce au count($listAdverts) qui retourne le nombre total d'annonces
     $nbPages = ceil(count($countuser) / $nbPerPage);
 	  
-	// Pour récupérer la liste de tous les utilisateurs
-    $users = $userManager->findUsers(
-	    array('enabled' => 1), // Critere
-	    array('id' => 'desc'),  // Tri
-	    $nbPerPage,   // Limite
-	    $p          // debut
-	  );
 
-	  $userss = $this->getDoctrine()
+	$userss = $this->getDoctrine()
       ->getManager()
       ->getRepository('OC\UserBundle\Entity\User')
       ->getUsers($page, $nbPerPage)
@@ -302,7 +327,6 @@ class AdvertController extends Controller
       ->getRepository('OCPlatformBundle:Advert')
       ->findBy(array('author' => $user), array('id' => 'desc'))
     ;
-	  
 	  
 	$messages = $bdd->getRepository('OC\UserBundle\Entity\Messages')->findBy(array('userreceived' => $user->getUsername()));
 	  
@@ -647,6 +671,43 @@ class AdvertController extends Controller
     }
 
     return $this->render('OCPlatformBundle:Advert:message.html.twig', array(
+      'form' => $form->createView(),
+    ));
+  
+  }  
+	
+  public function postdefiAction(Request $request, $id) {
+	
+	// verifi si le visiteur est connecter sinon sa renvoi à la page /login
+	$this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+	 
+  	$em = $this->get('fos_user.user_manager');
+		
+	// récupérer l'utilisateur courant
+	$user=$this->getUser();
+
+	
+	// changer l'entiter advert pour envoyer dans la bonne table
+	$advert = new Messages();
+    $form   = $this->get('form.factory')->create(DefiType::class, $advert);
+	$form->remove('image');
+	
+
+    if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+	  $advert->setUserreceived($id);
+	  $advert->setAuthor($this->getUser());
+      $em = $this->getDoctrine()->getManager();
+      $em->persist($advert);
+      $em->flush();
+
+      $request->getSession()->getFlashBag()->add('info', 'Message envoyé.');
+ 	  return $this->redirectToRoute('oc_platform_postprivate', array(
+      'form' => $form->createView(),
+	  'id'   => $id,
+    ));
+    }
+
+    return $this->render('OCPlatformBundle:Advert:defi.html.twig', array(
       'form' => $form->createView(),
     ));
   

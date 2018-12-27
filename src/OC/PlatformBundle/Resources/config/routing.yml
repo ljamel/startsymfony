@@ -89,9 +89,11 @@ oc_platform_cat:
         _controller: OCPlatformBundle:Advert:category
 
 oc_platform_pagegamer:
-    path:      /pagegamer/{page}
+    path:      /pagegamer/{page}/{p}
     defaults:
         _controller: OCPlatformBundle:Advert:pagegamer
+        page:        1
+        p:        1
 
 oc_platform_add:
     path:      /add
@@ -102,6 +104,11 @@ oc_platform_postprivate:
     path:      /postprivate/{id}
     defaults:
         _controller: OCPlatformBundle:Advert:postprivate
+
+oc_platform_postdefi:
+    path:      /postdefi/{id}
+    defaults:
+        _controller: OCPlatformBundle:Advert:postdefi
 
 oc_platform_edit:
     path:      /edit/{slug}

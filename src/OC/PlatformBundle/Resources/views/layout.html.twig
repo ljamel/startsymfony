@@ -506,7 +506,21 @@
 	<script src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/images/assets/js/goodgames-init.js"></script>
 	<!-- END: Scripts -->
 
-
+				<script>
+					$(function () {
+					  $('form').on('submit', function (event) {
+						event.preventDefault();
+						var message = $('.message').first().clone();
+						var send=$('#tchatch').val(); 
+						message.find('p').text('{{app.user.username}}');
+						message.find('.messagesend').text(send);
+						message.find('.datetime').text('{{ "now"|date('Y-m-d H:i:s')}}');
+						message.find('.avatarchatsend').html('<img class="avatarchat" src="http://localhost/symfony-rev3/mooc-symfony-iteration-16/gamers/web/images/{{app.user.username}}avatar.jpg">');
+						message.prependTo('.chat-container');
+						$('input').val('');
+					  });
+					});
+				</script>
 
 </body>
 

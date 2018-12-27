@@ -1,0 +1,21 @@
+{# src/OC/PlatformBundle/Resources/views/Advert/add.html.twig #}
+
+{% extends "OCPlatformBundle::layout.html.twig" %}
+
+{% block body %}
+
+  <h2>Défier le joueur</h2>
+<p>N'oublier pas de donner le titre du jeux, la consol, votre pseudo et la date à laquelle se deroulera le défi</p>
+   {% if app.session.flashBag.has('info') %}
+        <div class="alert alert-info">
+            {% for msg in app.session.flashBag.get('info') %}
+                {{ msg }}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+  {{ include("OCPlatformBundle:Advert:form.html.twig") }}
+
+ 
+
+{% endblock %}

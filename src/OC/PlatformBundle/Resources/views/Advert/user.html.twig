@@ -62,10 +62,12 @@
                                     </tbody>				
                                 </table>
 								{% if app.user == user.username %}
-									<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> | <a href="{{path('oc_platform_add')}}"> Poster une actualité </a>
+									<a href="{{ path('oc_platform_edituseractive')}}"> Modifier mon profile </a> | <a href="{{path('oc_platform_add')}}"> Poster une actualité </a> <br />
+									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Ma page</a>
 								{% else %}
 									<a href="{{ path('oc_platform_postprivate', {'id': user.username}) }}">Envoyé un message</a> |
-									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a>
+									<a href="{{ path('oc_platform_pagegamer', {'page': user.username}) }}">Page du joueur</a> <br />
+									<a href="{{ path('oc_platform_postdefi', {'id': user.username}) }}">Défier le joueur</a>
 								<br/>
 								{% endif %}
 								
